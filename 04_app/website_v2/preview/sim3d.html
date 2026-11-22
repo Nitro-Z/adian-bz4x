@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>阿電 生活模擬</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root { --green: #27F550; --ink: #141B2D; --yellow: #FFD84D; --white: #FFFFFF; --paper: #FAFAF5; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--ink); color: var(--ink); overflow: hidden;
+      font-family: "Noto Sans TC", -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif; }
+    #stage { position: fixed; inset: 0; }
+    /* z-index 0：地圖（以及裡面的 bZ4X 小車、資訊卡）自成一層，永遠在所有面板、開始畫面的下面 */
+    #map3d, #map2d { position: absolute; inset: 0; z-index: 0; }
+    #map2d { display: none; }
+    /* Google 標誌與資料來源（Map Tiles API 政策：一定要看得到、不能被擋住；標誌四周留白 10px） */
+    #credits { position: absolute; left: 16px; bottom: 4px; max-width: calc(100% - 32px); z-index: 6;
+      padding: 8px 12px 5px 2px; border-radius: 8px; background: rgba(20, 27, 45, 0.82); color: #fff; font-size: 12px; line-height: 1.2; }
+    /* Cesium 在裡面再放一層 .cesium-widget-credits（原本是 absolute、很窄，文字會擠成好幾行）：改成一行 */
+    #credits .cesium-widget-credits { position: static; display: flex; align-items: center; white-space: nowrap; padding: 0; font-size: 12px; text-shadow: none; }
+    #credits .cesium-credit-logoContainer img { height: 18px; width: auto; vertical-align: middle; margin-left: 10px; }
+    #credits .cesium-credit-textContainer { display: inline-flex; align-items: center; }
+    #credits .cesium-credit-textContainer img { margin: 0 6px 0 10px; vertical-align: middle; }   /* Google 標誌：原尺寸（16–19 px 高），四周留白 */
+    #credits a { color: #fff; }
+    #credits .ml-credit { padding-left: 10px; white-space: nowrap; }
+    .num { font-family: "Archivo Black", "Noto Sans TC", sans-serif; letter-spacing: 0.01em; }
+    .box { background: var(--white); border: 4px solid var(--ink); border-radius: 14px; box-shadow: 6px 6px 0 var(--ink); }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* 上方：情境分頁、時鐘 */
+    #top { position: absolute; top: 16px; left: 16px; right: 350px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; z-index: 5; }
+    .xbtn { width: 44px; height: 44px; flex: none; border: 4px solid var(--ink); border-radius: 12px; background: var(--white); box-shadow: 4px 4px 0 var(--ink);
+      font-size: 20px; font-weight: 900; line-height: 1; color: var(--ink); padding: 0; }
+    .xbtn:hover { background: var(--yellow); }
+    .xbtn:focus-visible, .pbtn:focus-visible, #startBtn:focus-visible, .modes a:focus-visible { outline: 4px solid var(--green); outline-offset: 2px; }
+    .brand { background: var(--green); padding: 7px 14px; font-weight: 900; font-size: 17px; }
+    .tabs { display: flex; gap: 8px; }
+    .tab { padding: 7px 14px; font-weight: 900; font-size: 17px; background: var(--white); border: 4px solid var(--ink); border-radius: 999px; box-shadow: 4px 4px 0 var(--ink); }
+    .tab.on { background: var(--yellow); }
+    .tab { text-decoration: none; color: var(--ink); }
+    #clock { padding: 4px 16px 4px 10px; display: flex; gap: 10px; align-items: center; }
+    #clockIcon { width: 34px; height: 34px; flex: none; }
+    #clockIcon line { stroke: var(--ink); stroke-linecap: round; }
+    /* 地圖切換：2D 向量地圖（預設）／3D 街景 */
+    .mapsw { display: flex; border: 4px solid var(--ink); border-radius: 999px; overflow: hidden; box-shadow: 4px 4px 0 var(--ink); background: var(--white); }
+    .mapsw a { padding: 6px 13px; font-weight: 900; font-size: 15px; color: var(--ink); text-decoration: none; }
+    .mapsw a + a { border-left: 3px solid var(--ink); }
+    .mapsw a.on { background: var(--ink); color: var(--green); }
+    #clock .day { font-weight: 900; font-size: 19px; }
+    #clock .time { font-size: 32px; }
+
+    /* 右上：小地圖、電量 */
+    #side { position: absolute; top: 16px; right: 16px; width: 310px; display: grid; gap: 12px; z-index: 5; }
+    #miniBox { overflow: hidden; padding: 0; } #mini { height: 200px; overflow: hidden; padding: 0; border-bottom: 2px solid var(--ink); }
+    #mini .leaflet-tile-pane { filter: saturate(0.35) brightness(1.05); }
+    #mini { position: relative; }
+    .mk { display: flex; align-items: center; justify-content: center; border: 3px solid var(--ink); border-radius: 50%; background: var(--white); font-size: 14px; line-height: 1; }
+    .mk.chg { background: var(--yellow); border-radius: 6px; font-size: 15px; }
+    #legend { line-height: 1.45; background: #fff; padding: 5px 9px 6px; font-size: 12px; font-weight: 900; }
+    #buf { font-size: 13px; font-weight: 900; color: #b45309; min-width: 76px; visibility: hidden; }
+    #buf.on { visibility: visible; }
+    #battery { padding: 10px 14px; }
+    #battery .label { font-weight: 900; font-size: 15px; display: flex; justify-content: space-between; }
+    #battery .pct { font-size: 42px; line-height: 1.05; }
+    #battery .pctrow { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+    #battery .rng { display: flex; flex-direction: column; align-items: flex-end; font-weight: 900; line-height: 1.1; padding-bottom: 4px; }
+    #battery .rng small { font-size: 12px; color: #555; } #battery #batNedc { font-size: 10.5px; margin-top: 1px; } #battery .rng span { font-size: 15px; } #battery .rng b { font-size: 24px; }
+    .bar { height: 20px; border: 4px solid var(--ink); border-radius: 8px; overflow: hidden; background: var(--paper); margin-top: 6px; }
+    .bar i { display: block; height: 100%; width: 60%; background: var(--green); }
+    #battery.charging .bar i { background: repeating-linear-gradient(-45deg, var(--green) 0 14px, #8CFF9F 14px 28px); background-size: 40px 40px; animation: flow 0.8s linear infinite; }
+    @keyframes flow { to { background-position: 40px 0; } }
+
+    /* 下方：減碳、這段路的油錢 vs 電費、保養（三個一樣重要，保養小一點） */
+    #tiles { position: absolute; left: 16px; right: 16px; bottom: 112px; display: grid; grid-template-columns: 1fr 1.25fr 0.75fr; gap: 14px; z-index: 5; }
+    .tile { padding: 9px 16px; }
+    .tile .k { font-weight: 900; font-size: 17px; }
+    .tile .v { font-size: 38px; line-height: 1.12; }
+    .tile .s { font-weight: 700; font-size: 14px; color: #3a4256; }
+    .tile.co2 { background: #27F550; }   /* 11/12：減碳是綠色、油錢 vs 電費維持白色 */
+    .tile.co2 .s { color: #141B2D; }
+    .tile .v .fuel { color: #c2410c; } .tile .v .elec { color: #12893a; } .tile .v .vs { font-family: "Noto Sans TC", sans-serif; font-size: 22px; font-weight: 900; color: #6b7385; margin: 0 6px; }
+    .tile.small .v { font-size: 26px; } .tile.small .k { font-size: 15px; } .tile.small .s { font-size: 12px; }
+
+    /* 阿電在畫面左下角旁白（路上開的是 bZ4X，阿電在旁邊說話） */
+    #narr { position: absolute; left: 16px; bottom: 252px; display: flex; align-items: flex-end; gap: 6px; pointer-events: none; max-width: min(1080px, calc(100vw - 32px)); z-index: 6; }
+    #subAvatar { width: 124px; height: 124px; flex: none; display: flex; align-items: center; justify-content: center; filter: drop-shadow(4px 4px 0 rgba(20, 27, 45, 0.9)); }
+    #subAvatar svg, #subAvatar img { width: 124px !important; height: 124px !important; }
+    #sub { position: relative; margin-bottom: 34px; padding: 10px 20px; font-weight: 900; font-size: 25px; line-height: 1.35;
+      opacity: 0; transform: translateY(6px); transition: opacity 0.25s, transform 0.25s; }
+    #sub.show { opacity: 1; transform: none; }
+    #sub::before { content: ""; position: absolute; left: -17px; bottom: 14px; border: 9px solid transparent; border-right: 14px solid var(--ink); }
+    /* 快轉提示 */
+    #ffBadge { position: absolute; left: 50%; top: 84px; transform: translateX(-50%); padding: 6px 18px; font-weight: 900; font-size: 22px;
+      background: var(--yellow); display: none; z-index: 6; }
+    #ffBadge.on { display: block; animation: ffpulse 1.1s ease-in-out infinite; }
+    @keyframes ffpulse { 50% { transform: translateX(-50%) scale(1.06); } }
+
+    /* 播放列 */
+    #player { position: absolute; left: 16px; right: 16px; bottom: 44px; height: 58px; display: flex; align-items: center; gap: 10px; padding: 0 12px; z-index: 7; }
+    .pbtn { height: 38px; min-width: 42px; padding: 0 10px; border: 3px solid var(--ink); border-radius: 10px; background: var(--white); font-weight: 900; font-size: 17px; box-shadow: 3px 3px 0 var(--ink); }
+    .pbtn.on { background: var(--yellow); }
+    .pbtn.play { background: var(--green); min-width: 54px; }
+    #scrubWrap { position: relative; flex: 1; height: 44px; }
+    #scrub { position: absolute; left: 0; right: 0; bottom: 4px; width: 100%; margin: 0; height: 16px; -webkit-appearance: none; appearance: none; background: transparent; }
+    #scrub::-webkit-slider-runnable-track { height: 14px; border: 3px solid var(--ink); border-radius: 8px; background: linear-gradient(90deg, var(--green) var(--p, 0%), var(--paper) var(--p, 0%)); }
+    #scrub::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 26px; margin-top: -9px; border: 3px solid var(--ink); border-radius: 6px; background: var(--yellow); }
+    #scrub::-moz-range-track { height: 10px; border: 3px solid var(--ink); border-radius: 8px; background: var(--paper); }
+    #scrub::-moz-range-progress { height: 10px; background: var(--green); }
+    #scrub::-moz-range-thumb { width: 18px; height: 24px; border: 3px solid var(--ink); border-radius: 6px; background: var(--yellow); }
+    .chap { position: absolute; top: 0; transform: translateX(-2px); font-size: 12px; font-weight: 900; white-space: nowrap; border-left: 3px solid var(--ink); padding-left: 4px; line-height: 1.1; cursor: pointer; }
+    #ptime { font-weight: 900; font-size: 15px; min-width: 92px; text-align: right; }
+
+    /* 開始畫面 */
+    #startLayer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(20, 27, 45, 0.55); z-index: 20; }
+    #startCard { position: relative; width: min(620px, 92vw); padding: 24px 28px; text-align: center; }
+    #startCard .xbtn { position: absolute; top: 10px; right: 10px; }
+    .maps { display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 10px; font-weight: 900; font-size: 14px; color: #3a4256; }
+    .maps a { text-decoration: none; color: var(--ink); padding: 4px 10px; font-size: 14px; border: 3px solid var(--ink); border-radius: 999px; background: var(--white); }
+    .maps a.on { background: var(--yellow); }
+    #startCard h2 { margin: 0 0 6px; font-size: 28px; font-weight: 900; }
+    #startCard p { margin: 4px 0 14px; font-weight: 700; color: #3a4256; }
+    #prog { height: 22px; border: 4px solid var(--ink); border-radius: 10px; overflow: hidden; background: var(--paper); }
+    #prog i { display: block; height: 100%; width: 0%; background: var(--green); transition: width 0.2s; }
+    #progText { margin-top: 8px; font-weight: 900; }
+    #diag { margin-top: 6px; font-size: 13px; font-weight: 700; color: #3a4256; }
+    #startBtn { margin-top: 14px; padding: 12px 30px; font-size: 24px; font-weight: 900; background: var(--yellow); border: 4px solid var(--ink); border-radius: 14px; box-shadow: 6px 6px 0 var(--ink); display: none; }
+    .modes { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+    .modes a { text-decoration: none; color: var(--ink); padding: 6px 12px; font-weight: 900; font-size: 15px; border: 3px solid var(--ink); border-radius: 999px; background: var(--white); }
+    .modes a.on { background: var(--green); }
+    #msg { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); padding: 16px 24px; font-weight: 900; font-size: 22px; display: none; z-index: 21; }
+
+    @media (max-height: 760px) {
+      #tiles { bottom: 108px; } .tile .v { font-size: 30px; } .tile.small .v { font-size: 22px; } .tile .s { font-size: 12px; }
+      #narr { bottom: 228px; } #sub { font-size: 21px; margin-bottom: 26px; } #subAvatar, #subAvatar svg, #subAvatar img { width: 96px !important; height: 96px !important; }
+      #mini { height: 160px; } #battery .pct { font-size: 34px; }
+    }
+    /* 11/16 手機：地圖要看得到——上面只留 ✕＋時鐘＋電量，小地圖收起來，三個數字縮成一列小格，阿電和字幕變小 */
+    @media (max-width: 700px) {
+      #top { top: 8px; left: 8px; right: 180px; gap: 6px; flex-wrap: nowrap; }
+      #top .brand, #top .tabs, #top .mapsw { display: none; }
+      .xbtn { width: 38px; height: 38px; font-size: 18px; }
+      #clock { padding: 2px 10px 2px 6px; gap: 6px; } #clockIcon { width: 24px; height: 24px; }
+      #clock .day { font-size: 14px; } #clock .time { font-size: 20px; }
+      #side { top: 8px; right: 8px; width: 164px; gap: 6px; }
+      #miniBox { display: none; }
+      #battery { padding: 5px 9px; } #battery .label { font-size: 11px; } #battery .pct { font-size: 24px; }
+      #battery .rng small { font-size: 10px; } #battery .rng span { font-size: 11px; } #battery .rng b { font-size: 16px; } #battery .pctrow { gap: 4px; }
+      #battery .bar { height: 8px; margin-top: 3px; }
+      #tiles { left: 8px; right: 8px; bottom: 60px; gap: 6px; grid-template-columns: 1fr 1.3fr 1fr; }
+      .tile { padding: 5px 7px; } .tile .k, .tile.small .k { font-size: 10.5px; line-height: 1.25; } .tile .s, .tile.small .s { display: none; }
+      .tile .v, .tile.small .v { font-size: 15px; line-height: 1.2; } .tile .v .vs { font-size: 12px; margin: 0 2px; }
+      #narr { left: 6px; right: 6px; bottom: 132px; max-width: none; }
+      #subAvatar, #subAvatar svg, #subAvatar img { width: 58px !important; height: 58px !important; }
+      #sub { margin-bottom: 14px; padding: 6px 11px; font-size: 15px; }
+      #ffBadge { top: 56px; font-size: 14px; padding: 4px 12px; }
+      #player { left: 8px; right: 8px; bottom: 22px; height: 34px; gap: 5px; padding: 0 6px; }
+      .pbtn { height: 26px; min-width: 28px; padding: 0 5px; font-size: 12px; border-width: 2px; box-shadow: 2px 2px 0 var(--ink); }
+      #ptime, #vol, #buf { display: none !important; }
+      #credits { left: 8px; bottom: 2px; } #credits, #credits .cesium-widget-credits { font-size: 8.5px; }
+      #startCard { width: calc(100vw - 24px); max-width: none; padding: 18px 14px; } #startCard h2 { padding: 0 36px; font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <div id="map3d"></div>
+    <div id="map2d"></div>
+
+    <div id="top">
+      <button class="xbtn" id="exitTop" type="button" aria-label="離開模擬，回到上一頁" title="離開模擬（Esc）">✕</button>
+      <div class="box brand">阿電・生活模擬</div>
+      <div class="tabs">
+        <a class="tab" data-scene="day">你的一天</a><a class="tab" data-scene="week">你的一週</a><a class="tab" data-scene="trip">三天兩夜</a>
+      </div>
+      <div class="box" id="clock"><svg id="clockIcon" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="#FFD84D" stroke="#141B2D" stroke-width="4"/><line id="hHand" x1="20" y1="20" x2="20" y2="11" stroke-width="4"/><line id="mHand" x1="20" y1="20" x2="20" y2="7" stroke-width="3"/><circle cx="20" cy="20" r="2.5" fill="#141B2D"/></svg><span class="day" id="day">週二</span><span class="time num" id="time">07:40</span></div>
+      <div class="mapsw" id="mapsw" role="group" aria-label="地圖樣式"></div>
+    </div>
+
+    <div id="side">
+      <div class="box" id="miniBox"><div id="mini"></div></div>   <!-- 11/13：圖例放在小地圖下面，不再蓋住地圖 -->
+      <div class="box" id="battery">
+        <div class="label"><span>🔋 電量</span><span id="batState">停在家</span></div>
+        <div class="pctrow"><div class="pct num" id="batPct">--%</div><div class="rng"><small>實際還能開約</small><span><b class="num" id="batRng">--</b> 公里</span><small id="batNedc">官方 NEDC 約 -- 公里</small></div></div>
+        <div class="bar"><i id="batBar"></i></div>
+      </div>
+    </div>
+
+    <div id="narr"><div id="subAvatar"></div><div id="sub" class="box"><span id="subText"></span></div></div>
+    <div id="ffBadge" class="box">⏩ 快轉</div>
+
+    <div id="tiles">
+      <div class="box tile co2"><div class="k" id="co2k">🌱 今天少排 CO₂</div><div class="v num" id="co2">0.0 kg</div><div class="s" id="co2s"></div></div>
+      <div class="box tile"><div class="k" id="savek">⛽ 這段路：油錢 vs 電費</div><div class="v num"><span class="fuel" id="fuel">NT$ 0</span><span class="vs">｜</span><span class="elec" id="elec">NT$ 0</span></div><div class="s" id="saves"></div></div>
+      <div class="box tile small"><div class="k">🔧 保養一年少花</div><div class="v num" id="maint">NT$ 0</div><div class="s">不用換機油，定保便宜約六成</div></div>
+    </div>
+
+    <div id="player" class="box">
+      <button class="pbtn" id="restart" title="從頭開始">⏮</button>
+      <button class="pbtn play" id="playBtn" title="播放／暫停（空白鍵）">▶</button>
+      <button class="pbtn on" data-speed="1">1×</button><button class="pbtn" data-speed="2">2×</button><button class="pbtn" data-speed="4">4×</button>
+      <div id="scrubWrap"><input type="range" id="scrub" min="0" max="100" step="0.1" value="0" /></div>
+      <span id="buf">⏳ 載入街景</span>
+      <span id="ptime" class="num">0:00 / 0:00</span>
+      <div id="vol" title="阿電的音量"></div>
+    </div>
+
+    <div id="startLayer">
+      <div class="box" id="startCard" role="dialog" aria-labelledby="startTitle">
+        <button class="xbtn" id="closeBtn" type="button" aria-label="關閉模擬，回到上一頁" title="關閉（Esc）">✕</button>
+        <h2 id="startTitle">阿電正在準備你的路線…</h2>
+        <p id="startSub">先把沿路的地圖載好，開車的時候才清楚。</p>
+        <div id="prog"><i id="progBar"></i></div>
+        <div id="progText">0%</div>
+        <div id="diag"></div>
+        <button id="startBtn">▶ 開始看你的一天</button>
+        <div class="modes" id="modes"></div>
+        <div class="maps" id="maps"></div>
+      </div>
+    </div>
+    <div class="box" id="msg"></div>
+    <div id="credits"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="../assets/adian-avatar.js?v=20261112a"></script>
+  <script src="../assets/bz4x-car.js?v=20261112a"></script>
+  <script src="../assets/sim-overlay.js?v=20261116b"></script>
+  <script src="../assets/sim3d.js?v=20261116a"></script>
+  <script src="../assets/sim2d.js?v=20261116a"></script>
+  <script src="../assets/sim3d-timeline.js?v=20261113b"></script>
+  <script src="../assets/sim3d-scenes.js?v=20261116c"></script>
+  <script>
+  (async () => {
+    const $ = id => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    const num = k => Number.isFinite(+params.get(k)) && params.get(k) !== null && params.get(k) !== '' ? +params.get(k) : null;
+    // 11/12：照客戶自己的一週（SIM_CONTRACT_20261112.md）。網址沒有這些新參數 → 跟以前一模一樣
+    const NEWP = ['anchor', 'wdays', 'kmode', 'slat', 'slon', 'sname', 'wx', 'okm', 'wkd', 'htlat', 'htlon', 'htname', 'olat', 'olon', 'oname', 'tstops'];
+    const HAS_WORK = num('wlat') != null && num('wlon') != null;
+    const txt = (k, d) => (params.get(k) || '').trim().slice(0, 24) || d;
+    const list = (k, ok) => (params.get(k) || '').split(',').map(x => x.trim()).filter(x => ok.includes(x));
+    const pt = (la, lo, name) => num(la) != null && num(lo) != null && Math.abs(num(la) - 23.7) < 3.5 && Math.abs(num(lo) - 120.9) < 3.5 ? { name, lat: num(la), lon: num(lo) } : null;
+    let U = null;
+    if (NEWP.some(k => params.has(k))) {
+      let tstops = [];
+      try { const a = JSON.parse(params.get('tstops') || '[]'); if (Array.isArray(a)) tstops = a; } catch (e) { tstops = []; }
+      tstops = tstops.filter(x => x && Number.isFinite(+x.lat) && Number.isFinite(+x.lon) && Math.abs(+x.lat - 23.7) < 3.5 && Math.abs(+x.lon - 120.9) < 3.5).slice(0, 3)
+        .map(x => ({ name: String(x.name || '目的地').trim().slice(0, 16) || '目的地', lat: +x.lat, lon: +x.lon, nights: Math.max(1, Math.min(14, Math.round(+x.nights) || 1)) }));
+      U = {
+        anchor: ['office', 'home', 'roam'].includes(params.get('anchor')) ? params.get('anchor') : HAS_WORK ? 'office' : 'home',
+        wdays: Math.max(1, Math.min(7, Math.round(num('wdays') || 5))),
+        kmode: ['both', 'am', 'pm'].includes(params.get('kmode')) ? params.get('kmode') : 'both',
+        school: pt('slat', 'slon', txt('sname', '學校')),
+        wx: list('wx', ['market', 'gym', 'parents', 'cram']),
+        okm: Math.max(0, Math.min(600, num('okm') || 0)),
+        wkd: params.has('wkd') ? list('wkd', ['mall', 'park', 'hometown', 'outing', 'home']) : ['mall', 'park'],
+        ht: pt('htlat', 'htlon', txt('htname', '老家')), out: pt('olat', 'olon', txt('oname', '出遊地點')),
+        tstops, hasWork: HAS_WORK,
+      };
+    }
+    const TSTOPS = U && U.tstops.length ? U.tstops : null;
+    const EMBED0 = params.has('embed');
+    // 顧問頁裡、沒有旅行（tstops）也沒有指定目的地（dest）：不顯示旅行分頁（不再預設日月潭）
+    const HAS_TRIP = !EMBED0 || params.has('dest') || !!TSTOPS;
+    const SCENE0 = ['day', 'week', 'trip'].includes(params.get('scene')) ? params.get('scene') : 'day';
+    const SCENE = SCENE0 === 'trip' && !HAS_TRIP ? 'week' : SCENE0;
+    const MODE = ['home', 'work', 'public'].includes(params.get('mode')) ? params.get('mode') : 'work';
+    const DESTS = { sunmoon: { name: '日月潭', lat: 23.8665, lon: 120.9157 }, kenting: { name: '墾丁', lat: 21.9466, lon: 120.7979 }, hualien: { name: '花蓮', lat: 23.9930, lon: 121.6011 } };
+    const DKEY = DESTS[params.get('dest')] ? params.get('dest') : 'sunmoon';
+    const FLAT = params.get('map') !== '3d';   // 預設 2D 向量地圖（MapLibre＋OpenFreeMap）；map=3d = Google 3D 街景
+    const EMBED = EMBED0;          // 放在阿電顧問頁裡（iframe）：由顧問頁控制播放
+    const KEEP = ['hlat', 'hlon', 'hname', 'wlat', 'wlon', 'wname', 'kids', 'embed', 'gl', 'gp', 'hp', 'pp', 'ms', ...NEWP].filter(k => params.has(k));
+    const qs = o => '?' + new URLSearchParams({ scene: SCENE, mode: MODE, dest: DKEY, map: FLAT ? '2d' : '3d', ...Object.fromEntries(KEEP.map(k => [k, params.get(k)])), ...o }).toString();
+    const tell = msg => { if (EMBED && window.parent !== window) window.parent.postMessage(Object.assign({ from: 'adian-sim' }, msg), location.origin); };
+    // 離開模擬：從聊天頁進來就回上一頁，不然回到阿電聊天頁
+    function leave() {
+      if (EMBED) { tell({ type: 'sim-close', t: window.TL ? Math.round(TL.time * 10) / 10 : null }); return; }
+      let same = false;
+      try { same = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) { /* 沒有來源頁 */ }
+      if (same && history.length > 1) history.back(); else location.href = '../advisor.html';
+    }
+    $('closeBtn').onclick = leave; $('exitTop').onclick = leave;
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') leave(); });
+    if (window.AdianAvatar && AdianAvatar.volumeControl) AdianAvatar.volumeControl($('vol'), { width: 92 });
+    document.querySelectorAll('[data-scene]').forEach(a => { a.href = qs({ scene: a.dataset.scene }); a.classList.toggle('on', a.dataset.scene === SCENE); });
+    const tripTab = document.querySelector('[data-scene="trip"]');
+    if (!HAS_TRIP) tripTab.style.display = 'none';
+    if (TSTOPS) { const CN = ['零', '一', '兩', '三', '四', '五', '六', '七', '八', '九', '十'], n = TSTOPS.reduce((a, x) => a + x.nights, 0); tripTab.textContent = `${CN[n + 1] || n + 1}天${CN[n] || n}夜`; }
+    const choices = SCENE === 'trip' && TSTOPS ? [] : SCENE === 'trip'
+      ? Object.entries(DESTS).map(([k, d]) => `<a href="${qs({ dest: k })}" class="${k === DKEY ? 'on' : ''}">去${d.name}</a>`)
+      : [['home', '家裡可以充電'], ['work', '公司可以充電'], ['public', '都不能充']].map(([k, t]) => `<a href="${qs({ mode: k })}" class="${k === MODE ? 'on' : ''}">${t}</a>`);
+    $('modes').innerHTML = choices.join('');
+    $('maps').innerHTML = `<span>地圖：</span><a href="${qs({ map: '2d' })}" class="${FLAT ? 'on' : ''}">2D 地圖</a><a href="${qs({ map: '3d' })}" class="${FLAT ? '' : 'on'}">3D 街景</a>`;
+    $('mapsw').innerHTML = `<a href="${qs({ map: '2d' })}" class="${FLAT ? 'on' : ''}" aria-pressed="${FLAT}">2D 地圖</a><a href="${qs({ map: '3d' })}" class="${FLAT ? '' : 'on'}" aria-pressed="${!FLAT}">3D 街景</a>`;
+
+    // 家、公司：由顧問頁的答案帶進來（hlat/hlon、wlat/wlon）；沒有就用示範情境（板橋車站一帶、台北 101 一帶，都是公共地點）
+    const HOME = num('hlat') != null && num('hlon') != null ? { name: params.get('hname') || '家', lat: num('hlat'), lon: num('hlon') } : { name: '板橋', lat: 25.0143, lon: 121.4635 };
+    const WORK = num('wlat') != null && num('wlon') != null ? { name: params.get('wname') || '公司', lat: num('wlat'), lon: num('wlon') } : { name: '信義區', lat: 25.0338, lon: 121.5645 };
+    const KIDS = params.get('kids') !== '0';   // 用車方式「接送家人小孩」（示範：陳先生下班接兒子）
+    const { K, DAYS, hhmm, r1 } = SimScenes;
+    // 從顧問帶過來的油耗與價格（每公里幾公升、油價、家用／公共電價）；沒帶就用預設
+    { const gl = num('gl'), gp = num('gp'), hp = num('hp'), pp = num('pp');
+      if (gl && gl > 0.03 && gl < 0.2) K.GAS_L_PER_KM = gl;
+      if (gp && gp > 10 && gp < 80) K.GAS_NT_PER_L = gp;
+      if (hp && hp > 0.5 && hp < 20) K.HOME_NT_PER_KWH = hp;
+      if (pp && pp > 0.5 && pp < 40) K.PUBLIC_NT_PER_KWH = pp;
+      K.CO2_PER_KM = K.GAS_L_PER_KM * K.GAS_CO2 - K.EV_KWH_PER_KM * K.GRID_CO2;
+      K.FUEL_NT_PER_KM = K.GAS_L_PER_KM * K.GAS_NT_PER_L; }
+    const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s) % 60).padStart(2, '0')}`;
+    async function api(path) { const r = await fetch('../' + path, { credentials: 'same-origin' }); if (!r.ok) throw new Error(path + ' ' + r.status); return r.json(); }
+    const T0 = performance.now();
+    const progress = (f, text) => { $('progBar').style.width = Math.round(f * 100) + '%'; $('progText').textContent = text || Math.round(f * 100) + '%'; };
+
+    progress(0.02, '查詢附近的充電站…');
+    const [nearWork, nearHome] = await Promise.all([
+      api(`api/ev/nearby?lat=${WORK.lat}&lon=${WORK.lon}&radius_km=0.9&limit=12`),
+      api(`api/ev/nearby?lat=${HOME.lat}&lon=${HOME.lon}&radius_km=2.5&limit=40`),   // 也用來找學校、市場、百貨
+    ]);
+
+    // ---------- 地圖：2D 向量地圖（預設）或 3D 街景（失敗就改用 Leaflet） ----------
+    // 資訊卡要避開的面板：阿電的字幕（有字的時候）、下面的數字、右邊的小地圖與電量、上面的分頁
+    const avoid = () => [$('sub').classList.contains('show') ? $('sub').getBoundingClientRect() : null, $('subAvatar').getBoundingClientRect(),
+      $('tiles').getBoundingClientRect(), $('side').getBoundingClientRect()];
+    const common = { creditContainer: $('credits'), avoid, spriteBase: '../assets/characters/' };
+    let sim;
+    try {
+      sim = FLAT ? await Sim2D.create($('map3d'), common)
+        : await Sim3D.create($('map3d'), Object.assign({ configUrl: '../api/maps-config', crisp: params.has('crisp'), map: '3d',
+          sse: +params.get('sse') || undefined, sseK: params.has('ssek') ? +params.get('ssek') : undefined, cacheMB: +params.get('cache') || undefined }, common));
+    } catch (e) {
+      console.warn(e); $('startLayer').style.display = 'none';
+      $('msg').textContent = '這台裝置無法顯示 3D，改用 2D 地圖。'; $('msg').style.display = 'block';
+      $('map2d').style.display = 'block';
+      const m = L.map('map2d', { zoomControl: false }).setView([HOME.lat, HOME.lon], 12);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(m);
+      return;
+    }
+    window.SIM = sim;
+    sim.showCar(false);   // 按「開始」之前不畫車子（不然會蓋在開始畫面上）
+    if (params.has('dev')) { $('startLayer').style.display = 'none'; return; }   // 測試用：只建立 3D，由測試程式控制
+
+    // 有 3D 建築：鏡頭低空跟車；只有空拍照片＋地形：鏡頭拉高，像空拍機（長途旅行一律用空拍視角）
+    let buildings = !FLAT;
+    if (SCENE !== 'trip' && !FLAT) {
+      progress(0.06, '檢查這裡有沒有 3D 建築…');
+      const cov = [await sim.probe(HOME.lat, HOME.lon).catch(() => ({ ok: false })), await sim.probe(WORK.lat, WORK.lon).catch(() => ({ ok: false }))];
+      buildings = cov.every(c => c.ok !== false);   // 量不到（null）就當作有 3D
+    }
+    // 2D 向量地圖：像導航 App（跟著車轉，字一直是正的）
+    const CAM = FLAT ? { range: 620, pitch: -48, pitchMax: -60 } : buildings ? { range: 470, pitch: -40 } : { range: 1100, pitch: -48 };
+    progress(0.1, '規劃路線…');
+    const sc = await SimScenes.build(SCENE, { sim, api, HOME, WORK, DEST: DESTS[DKEY], MODE, CAM, near: FLAT ? 1.2 : buildings ? 1 : 2.2, nearWork, nearHome, kids: KIDS, U });
+    window.SCINFO = { excluded: sc.excluded, kids: KIDS, home: HOME.name, work: WORK.name, plan: U, km: Math.round(sc.kmTotal), charges: sc.charges,
+      places: sc.places.filter(p => p.kind !== 'alt').map(p => p.kind + ':' + p.label) };
+
+    // ---------- 小地圖 ----------
+    const mini = L.map('mini', { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false, doubleClickZoom: false });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(mini);
+    // 去程綠色、回程黃色（回程畫在下面，重疊的路段看得到兩種顏色的邊）
+    [...sc.legs].sort((a, b) => (a.kind === 'back' ? 0 : 1) - (b.kind === 'back' ? 0 : 1)).forEach(l => {
+      L.polyline(l.coords, { color: '#141B2D', weight: 7 }).addTo(mini);
+      L.polyline(l.coords, { color: l.kind === 'back' ? '#FFD84D' : '#27F550', weight: l.kind === 'back' ? 4 : 3 }).addTo(mini);
+    });
+    const allC = sc.legs.flatMap(l => l.coords);
+    if (allC.length > 1) mini.fitBounds(L.latLngBounds(allC), { paddingTopLeft: [14, 14], paddingBottomRight: [14, 14] });
+    else mini.setView([HOME.lat, HOME.lon], 14);   // 一週都沒開車（例如在家、週末也在家）
+    const icon = (html, cls, size) => L.divIcon({ html: `<div class="mk ${cls}" style="width:${size}px;height:${size}px">${html}</div>`, className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2] });
+    sc.places.filter(p => p.kind === 'alt').forEach(p => L.circleMarker([p.lat, p.lon], { radius: 4, color: '#141B2D', weight: 1.5, fillColor: p.fast ? '#FFD84D' : '#27F550', fillOpacity: 1 }).bindTooltip(p.label).addTo(mini));
+    sc.places.filter(p => p.kind === 'charger').forEach(p => L.marker([p.lat, p.lon], { icon: icon('⚡', 'chg', 24), zIndexOffset: 500 }).bindTooltip(p.label).addTo(mini));
+    const EMO = { home: '🏠', work: '🏢', dest: '🏁', school: '🏫', market: '🛒', mall: '🛍️', park: '🌳' };
+    Object.assign(EMO, { gym: '🏋️', clinic: '🏥', cram: '📚', client: '💼' });
+    sc.places.filter(p => EMO[p.kind]).forEach(p => L.marker([p.lat, p.lon], { icon: icon(p.icon || EMO[p.kind], '', 26), zIndexOffset: 600 }).bindTooltip(p.label).addTo(mini));
+    const leg = document.createElement('div'); leg.id = 'legend';
+    const has = k => sc.places.some(p => p.kind === k);
+    leg.innerHTML = '<span style="color:#1a9e38">━━</span> 去程　<span style="color:#d9a400">━━</span> 回程<br>'
+      + (SCENE === 'trip' ? '🏠 出發 🏁 目的地' : '🏠 家' + (has('work') ? ' 🏢 公司' : '')) + (has('school') ? ' 🏫 學校' : '') + (has('market') ? ' 🛒 市場' : '')
+      + (has('gym') ? ' 🏋️ 運動' : '') + (has('clinic') ? ' 🏥 醫院' : '') + (has('cram') ? ' 📚 補習班' : '') + (has('client') ? ' 💼 客戶' : '')
+      + (has('mall') ? ' 🛍️ 百貨' : '') + (has('park') ? ' 🌳 公園' : '') + (SCENE !== 'trip' && sc.places.some(p => p.icon === '🏡') ? ' 🏡 老家' : '') + (SCENE !== 'trip' && sc.places.some(p => p.icon === '📸') ? ' 📸 出遊' : '') + ' ⚡ 充電';
+    $('miniBox').appendChild(leg);
+    const dot = L.circleMarker(allC[0] || [HOME.lat, HOME.lon], { radius: 8, color: '#141B2D', weight: 3, fillColor: '#FFFFFF', fillOpacity: 1 }).addTo(mini);
+
+    // ---------- 畫面上的數字 ----------
+    $('co2k').textContent = `🌱 ${sc.label}少排 CO₂`; $('savek').textContent = `⛽ ${sc.label}：油錢 vs 電費`;
+    $('co2s').textContent = sc.co2Line;
+    // 一年少花的保養費：顧問頁帶過來（跟「每個月要花多少」同一個算法）；沒帶就用一年約 1.5 萬公里估
+    { const ms = num('ms'); $('maint').textContent = `NT$ ${Math.round(ms && ms > 0 ? ms : 1.5 * K.MAINT_PER_10K).toLocaleString()}`; }
+    let shownCue = null, shownFF = null;
+    function onState(st, tl) {
+      $('day').textContent = DAYS[(sc.firstDay + Math.floor(st.clock / (24 * 60))) % 7] + (st.night > 0.5 ? ' 🌙' : '');
+      $('time').textContent = hhmm(st.clock);
+      const b = Math.max(0, Math.min(100, st.bat));
+      $('batPct').textContent = Math.round(b) + '%'; $('batBar').style.width = b + '%';
+      $('batRng').textContent = Math.round(b / 100 * SimScenes.K.RANGE_KM / 5) * 5;   // 實際：冷氣、塞車、高速（約 520 km 滿電）
+      $('batNedc').textContent = `官方 NEDC 約 ${Math.round(b / 100 * 743 / 5) * 5} 公里`;   // 11/16：官網標示 743 km（NEDC 測試，比實際樂觀）   // 11/16：剩下的續航（實際續航 520 km 的比例，取 5 的倍數）
+      $('batState').textContent = st.state; $('battery').classList.toggle('charging', st.state === '充電中');
+      $('co2').textContent = (st.km * K.CO2_PER_KM).toFixed(1) + ' kg';
+      // 同一段路：油車的油錢 vs bZ4X 的電費（數字由程式算）
+      const fuel = st.km * sc.fuelPerKm, elec = st.km * sc.elecPerKm;
+      $('fuel').textContent = 'NT$ ' + Math.round(fuel).toLocaleString(); $('elec').textContent = 'NT$ ' + Math.round(elec).toLocaleString();
+      $('saves').textContent = `省下 NT$ ${Math.round(fuel - elec).toLocaleString()}・${sc.saveLine}`;
+      // 時鐘：指針跟著模擬的時間走
+      const mins = st.clock % (24 * 60);
+      $('hHand').setAttribute('transform', `rotate(${((mins / 60) % 12) * 30} 20 20)`); $('mHand').setAttribute('transform', `rotate(${(mins % 60) * 6} 20 20)`);
+      if (st.cue !== shownCue) {
+        shownCue = st.cue;
+        if (st.cue) { $('subText').textContent = st.cue.text; $('sub').classList.add('show'); } else $('sub').classList.remove('show');
+      }
+      dot.setLatLng(st.car);
+      $('scrub').value = st.t; $('scrub').style.setProperty('--p', (st.t / tl.duration * 100) + '%');
+      $('ptime').textContent = `${mmss(st.t)} / ${mmss(tl.duration)}`;
+      $('buf').classList.toggle('on', tl.playing && tl.buffering);
+      if (st.ff !== shownFF) { shownFF = st.ff; $('ffBadge').textContent = st.ff || ''; $('ffBadge').classList.toggle('on', !!st.ff); }
+    }
+
+    // ---------- 阿電說話（網站同一個聲音；只有 1× 播放時才說，快轉或拖曳時只顯示字幕） ----------
+    let av = null;
+    try { av = await AdianAvatar.mount($('subAvatar'), { src: '../assets/adian-rig.svg', size: 124 }); AdianAvatar.setTTSServer(location.origin); } catch (e) { console.warn(e); }
+    const hush = () => { if (av) av.stopSpeaking(); if (window.AdianAvatar) AdianAvatar.cancelPending(); };
+    function onCue(c) { if (av) { hush(); av.speak(c.text, { rate: 1 }); } }   // 音量、靜音：播放列右邊（全站共用，記在這台瀏覽器）
+
+    const tl = SimTimeline.create({ sim, raw: sc.raw, cues: sc.cues, onState, onCue, onEnd: () => { $('playBtn').textContent = '↺'; tell({ type: 'sim-end', t: Math.round(tl.time * 10) / 10, speed: tl.speed }); } });
+    window.TL = tl;
+    $('scrub').max = tl.duration;
+    tl.chapters.forEach(c => {
+      const el = document.createElement('span'); el.className = 'chap'; el.textContent = c.label;
+      el.style.left = (c.t / tl.duration * 100) + '%'; el.onclick = () => { hush(); tl.seek(c.t); };
+      $('scrubWrap').appendChild(el);
+    });
+
+    // ---------- 先沿路線載好 3D ----------
+    // 照播放的鏡頭先走一遍，把沿路的地圖（2D 向量圖磚很小，幾秒就好；3D 街景要久一點）載好
+    if (!params.has('nopre')) window.PRELOAD = await tl.preload(f => { progress(0.12 + 0.88 * f, `準備路線 ${Math.round((0.12 + 0.88 * f) * 100)}%`); tell({ type: 'sim-progress', f }); },
+      FLAT ? { maxMs: 1200, move: 0.8, turn: 30, zoom: 1.8, pitch: 15, minDt: 0.8, maxDt: 10 } : sc.preload);   // 2D 向量圖磚很小：步伐大一點就夠
+    else { tl.finalizeHeights(); tl.seek(0); }   // 測試用：跳過預先載入
+    progress(1, '準備好了');
+    // 顯示準備時間與瀏覽器實際使用的顯示卡（筆電要用獨立顯示卡才會快）
+    let gpu = '';
+    try { const g = document.createElement('canvas').getContext('webgl'); const x = g.getExtension('WEBGL_debug_renderer_info'); gpu = x ? g.getParameter(x.UNMASKED_RENDERER_WEBGL) : ''; } catch (e) { /* 不支援就不顯示 */ }
+    $('diag').textContent = `準備時間 ${Math.round((performance.now() - T0) / 1000)} 秒${gpu && !FLAT ? '｜顯示卡：' + gpu.replace(/^ANGLE \((.*)\)$/, '$1') : ''}`
+      + (sc.excluded ? `｜已排除 ${sc.excluded} 個 bZ4X 不能用的充電站` : '');
+    $('startTitle').textContent = sc.title; $('startSub').textContent = sc.sub;
+    $('startBtn').textContent = SCENE === 'trip' ? '▶ 出發' : SCENE === 'week' ? '▶ 開始看你的一週' : '▶ 開始看你的一天';
+    $('startBtn').style.display = 'inline-block';
+    window.READY = true;
+    tell({ type: 'sim-ready', duration: tl.duration });
+
+    // ---------- 播放控制 ----------
+    const setPlay = on => { $('playBtn').textContent = on ? '❚❚' : '▶'; };
+    const start = () => { if (window.AdianAvatar) AdianAvatar.unlockAudio(); $('startLayer').style.display = 'none'; sim.showCar(true); tl.play(); setPlay(true); };
+    $('startBtn').onclick = start;
+    // 顧問頁（iframe 外面）來的指令：播放、暫停、靜音
+    window.addEventListener('message', e => {
+      if (e.origin !== location.origin || !e.data || e.data.to !== 'adian-sim') return;
+      if (e.data.type === 'play') start();
+      if (e.data.type === 'pause') { tl.pause(); hush(); setPlay(false); }
+    });
+    $('playBtn').onclick = () => { if (tl.playing) { tl.pause(); hush(); setPlay(false); } else { if (window.AdianAvatar) AdianAvatar.unlockAudio(); tl.play(); setPlay(true); } };
+    $('restart').onclick = () => { hush(); tl.seek(0); tl.play(); setPlay(true); };
+    document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => {
+      tl.setSpeed(+b.dataset.speed); if (+b.dataset.speed !== 1) hush();
+      document.querySelectorAll('[data-speed]').forEach(x => x.classList.toggle('on', x === b));
+    });
+    $('scrub').addEventListener('input', e => { tl.pause(); hush(); setPlay(false); tl.seek(+e.target.value); });
+    document.addEventListener('keydown', e => {
+      if ($('startLayer').style.display !== 'none') return;   // 按「開始」之後才有快捷鍵
+      if (e.target && e.target.closest && e.target.closest('input, button')) return;   // 正在調音量、按按鈕
+      if (e.code === 'Space') { e.preventDefault(); $('playBtn').click(); }
+      if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') { hush(); tl.seek(tl.time + (e.code === 'ArrowRight' ? 5 : -5)); }
+    });
+  })();
+  </script>
+</body>
+</html>

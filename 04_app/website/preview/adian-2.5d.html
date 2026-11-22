@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>阿電 2.5D – bản xem thử</title>
+  <style>
+    :root { --primary: #27F550; --ink: #141B2D; --yellow: #FFD84D; --bg: #F6F7F2; --muted: #4B5568; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Noto Sans TC", system-ui, sans-serif; }
+    header { background: var(--yellow); border-bottom: 3px solid var(--ink); padding: 0.9rem 1.2rem; font-weight: 900; }
+    header small { font-weight: 700; color: var(--muted); margin-left: 0.6rem; }
+    main { max-width: 1200px; margin: 1.4rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
+    .card { background: #fff; border: 3px solid var(--ink); border-radius: 22px; box-shadow: 6px 6px 0 var(--ink); padding: 1rem 1.2rem 1.4rem; }
+    .card h2 { margin: 0 0 0.4rem; font-size: 1.1rem; }
+    .card p { margin: 0 0 0.8rem; color: var(--muted); font-size: 0.92rem; }
+    .stage { display: grid; place-items: center; height: 380px; background: radial-gradient(circle at 50% 70%, #EAF8EE, #fff 70%); border-radius: 14px; }
+    .stage img, .stage svg { width: 340px; height: 340px; }
+    .small { display: flex; gap: 1.2rem; align-items: flex-end; justify-content: center; margin-top: 0.8rem; }
+    .small > div { text-align: center; font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+    .small img, .small svg { width: 178px; height: 178px; display: block; }
+    .bar { grid-column: 1 / -1; display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; }
+    button { font: inherit; font-weight: 900; border: 3px solid var(--ink); border-radius: 999px; padding: 0.5rem 1.2rem; background: var(--primary);
+      box-shadow: 4px 4px 0 var(--ink); cursor: pointer; }
+    button.light { background: #fff; }
+    .note { color: var(--muted); font-size: 0.88rem; }
+    @media (max-width: 800px) { main { grid-template-columns: 1fr; } .stage { height: 300px; } .stage img, .stage svg { width: 270px; height: 270px; } }
+  </style>
+</head>
+<body>
+  <header>阿電 2.5D – bản xem thử <small>Chỉ để xem trong nhóm; web demo chưa dùng bản này</small></header>
+  <main>
+    <div class="bar">
+      <button type="button" id="talkBtn">▶ Mô phỏng 阿電 đang nói (4 giây)</button>
+      <span class="note">Di chuột quanh màn hình để 阿電 nghiêng theo; trên điện thoại thì nghiêng máy. Không di chuột thì 阿電 tự lắc nhẹ.</span>
+    </div>
+    <section class="card">
+      <h2>Bản hiện tại (2D)</h2>
+      <p>Đang dùng trên web.</p>
+      <div class="stage"><img src="../assets/adian-rig.svg?v=20261013s" alt="阿電 2D"></div>
+      <div class="small"><div><img src="../assets/adian-rig.svg?v=20261013s" alt="">Cỡ góc màn hình (178px)</div></div>
+    </section>
+    <section class="card">
+      <h2>Bản 2.5D</h2>
+      <p>Nghiêng 3D, các lớp lệch nhau tạo chiều sâu, vệt sáng chạy theo góc, nhún như có giảm xóc, mắt nhìn theo chuột.</p>
+      <div class="stage" id="big"></div>
+      <div class="small"><div><span id="small"></span>Cỡ góc màn hình (178px)</div></div>
+    </section>
+  </main>
+  <script src="adian-25d.js?v=2"></script>
+  <script>
+    let talkUntil = 0;
+    const talking = () => performance.now() < talkUntil;
+    const mouths = ['mouth', 'mouth-half', 'mouth-open', 'mouth-half'];
+    async function mount(el) {
+      const txt = await (await fetch('adian-rig-25d.svg?v=1')).text();
+      el.innerHTML = txt;
+      const svg = el.querySelector('svg');
+      Adian25D.enhance(svg, { host: el, isTalking: talking });
+      return svg;
+    }
+    Promise.all([mount(document.getElementById('big')), mount(document.getElementById('small'))]).then(svgs => {
+      // fake lip-sync for the preview: switch mouth shapes while "talking"
+      setInterval(() => {
+        svgs.forEach(svg => {
+          const pick = talking() ? mouths[Math.floor(Math.random() * mouths.length)] : 'mouth';
+          ['mouth', 'mouth-half', 'mouth-open'].forEach(id => {
+            const g = svg.querySelector('[id="' + id + '"]');
+            if (g) g.setAttribute('opacity', id === pick ? '1' : '0');
+          });
+        });
+      }, 120);
+    });
+    document.getElementById('talkBtn').onclick = () => { talkUntil = performance.now() + 4000; };
+  </script>
+</body>
+</html>

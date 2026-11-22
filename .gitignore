@@ -1,0 +1,29 @@
+# secrets and per-machine settings (never commit)
+secrets/
+**/.credentials
+**/.judge_password
+**/.access_key
+**/.share_key
+**/.maps_key
+**/.ngrok_url
+**/.gcp_project
+**/tdx.env
+*.env
+
+# caches, models, runtime output
+**/cache/
+**/.emb_cache.json
+**/feedback/
+**/*.log
+**/url.txt
+04_app/tts/env/
+04_app/tts/*_models/
+**/__pycache__/
+node_modules/
+
+# media and organizer data are not part of this repo
+*.mp4
+*.wav
+*.pptx
+*.docx
+*.pdf

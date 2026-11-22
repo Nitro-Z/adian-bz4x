@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <title>阿電｜誠實的電動車顧問</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* v2「海報」版：超大字、分段編號（01／06）、側邊直排標籤、跑馬燈、數字往上跳、進場動畫。
+       內容和舊版一樣完整，只是排得更有節奏。保留 neo-brutalism（粗黑框、硬陰影）與阿電的配色。
+       動畫只用 transform／opacity，每次捲回來都會重播；使用者設定「減少動態效果」時全部關掉。 */
+    :root {
+      --primary: #27F550; --deep-green: #0A7A2B; --mint: #ECFDF0; --yellow: #FFD84D; --cyan: #67E8F9;
+      --ink: #141B2D; --muted: #4B5568; --bg: #FBFBF6; --white: #FFFFFF; --coral: #FF7A59;
+      --line: 3px solid var(--ink); --hard: 6px 6px 0 var(--ink); --hard-sm: 4px 4px 0 var(--ink); --radius: 22px;
+      --num: "Archivo Black", "Noto Sans TC", sans-serif;
+      --gutter: clamp(16px, 4vw, 56px);
+      --s1: 12px; --s2: 20px; --s3: 32px; --s4: 48px;   /* 統一的間距 */
+      --ease: cubic-bezier(0.2, 0.8, 0.2, 1); --pop: cubic-bezier(0.3, 1.6, 0.5, 1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 17px; }
+    @media (min-width: 1200px) { html { font-size: 18px; } }   /* 大螢幕字整體大一點 */
+    body { font-family: "Noto Sans TC", -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif; background: var(--bg); color: var(--ink);
+      line-height: 1.6; font-weight: 500; overflow-x: hidden; }
+    a { color: inherit; }
+    svg.ic { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ---------- 上方列＋右側分段指示 ---------- */
+    .topbar { position: fixed; inset: 0 0 auto 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;
+      padding: 14px var(--gutter); pointer-events: none; }
+    .topbar > * { pointer-events: auto; }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 1.15rem; text-decoration: none;
+      background: var(--white); border: var(--line); border-radius: 999px; padding: 6px 16px 6px 8px; box-shadow: var(--hard-sm); }
+    .logo img { width: 44px; height: auto; }
+    .go-btn { font: inherit; font-weight: 900; text-decoration: none; background: var(--primary); border: var(--line); border-radius: 999px;
+      padding: 10px 22px; box-shadow: var(--hard-sm); transition: transform 0.15s, box-shadow 0.15s; display: inline-block; }
+    .go-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+    .go-btn:active { transform: translate(3px, 3px); box-shadow: none; }
+    .rail { position: fixed; right: calc(var(--gutter) * 0.6); top: 50%; transform: translateY(-50%); z-index: 40; display: flex; flex-direction: column;
+      align-items: center; gap: 10px; font-family: var(--num); font-size: 0.85rem; background: var(--white); border: var(--line);
+      border-radius: 999px; padding: 12px 8px; box-shadow: var(--hard-sm); }
+    .rail .now { font-size: 1.6rem; line-height: 1; }
+    .rail .bar { width: 4px; height: 120px; background: #DDE2EA; border-radius: 4px; overflow: hidden; }
+    .rail .bar i { display: block; width: 100%; height: 16%; background: var(--ink); transition: height 0.4s ease; }
+    .side-label { position: absolute; left: calc(var(--gutter) * 0.45); top: 50%; transform: translateY(-50%) rotate(180deg); writing-mode: vertical-rl;
+      font-weight: 900; letter-spacing: 0.3em; font-size: 0.78rem; color: var(--muted); text-transform: uppercase; }
+
+    /* ---------- 共用：分段、大字 ---------- */
+    .slide { position: relative; min-height: 100vh; padding: 104px calc(var(--gutter) * 2) var(--s4); display: flex; flex-direction: column; justify-content: center; }
+    .slide-no { font-family: var(--num); font-size: 1rem; letter-spacing: 0.06em; margin-bottom: var(--s2); }
+    .slide-no b { background: var(--ink); color: var(--primary); padding: 2px 10px; border-radius: 999px; margin-right: 8px; }
+    .kicker { display: block; font-weight: 900; font-size: clamp(1.1rem, 2.4vw, 1.8rem); margin-bottom: 6px; }
+    .giant { font-weight: 900; font-size: clamp(3.2rem, min(10vw, 15vh), 10rem); line-height: 1.08; letter-spacing: 0; }
+    .giant .mark { background: var(--primary); padding: 0 0.08em; border-radius: 0.08em; }
+    .h2 { font-size: clamp(2.4rem, 5.6vw, 5rem); }
+    .lead { font-size: clamp(1.05rem, 1.6vw, 1.3rem); max-width: 32em; margin-top: var(--s2); color: var(--muted); line-height: 1.6; }
+
+    /* 進場動畫：一行一行從遮罩下方升上來；其他元素往上浮現 */
+    .line { display: block; overflow: hidden; padding: 0 0.08em 0.08em 0; }
+    .line > span { display: inline-block; transform: translateY(105%); transition: transform 0.9s var(--ease); }
+    .in .line > span { transform: none; }
+    .in .line:nth-child(2) > span { transition-delay: 0.12s; }
+    .rise { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s var(--ease); }
+    .in .rise { opacity: 1; transform: none; }
+    .in .d1 { transition-delay: 0.1s; } .in .d2 { transition-delay: 0.2s; } .in .d3 { transition-delay: 0.3s; }
+    .in .d4 { transition-delay: 0.4s; } .in .d5 { transition-delay: 0.5s; } .in .d6 { transition-delay: 0.6s; }
+
+    /* ---------- 01 首屏 ---------- */
+    .hero { background: var(--yellow); border-bottom: var(--line); overflow: hidden; padding-bottom: 100px; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s3); align-items: center; }
+    .hero-side { display: flex; flex-direction: column; align-items: center; gap: var(--s2); }
+    .bubble { position: relative; background: var(--white); border: var(--line); border-radius: 20px; box-shadow: var(--hard-sm); padding: 12px 20px;
+      font-weight: 900; font-size: clamp(1rem, 1.6vw, 1.3rem); }
+    .bubble::after { content: ""; position: absolute; left: 50%; bottom: -14px; width: 22px; height: 22px; background: var(--white);
+      border-right: var(--line); border-bottom: var(--line); transform: translateX(-50%) rotate(45deg); }
+    .hero-mascot { width: clamp(260px, min(37vw, 58vh), 560px); display: flex; justify-content: center; will-change: transform; }   /* 大，但首屏放得下（跑馬燈要看得到） */
+    .hero-mascot .bob { width: 100%; animation: bob 3.2s ease-in-out infinite; }   /* 不加硬陰影：整台車的深色剪影會像後面又疊了一台阿電 */
+    .hero-mascot svg, .hero-mascot img { width: 100%; height: auto; display: block; }
+    @keyframes bob { 50% { transform: translateY(-12px) rotate(-1.5deg); } }
+    .name-tag { font-weight: 900; font-size: 1.1rem; background: var(--ink); color: var(--primary); border-radius: 999px; padding: 6px 18px; }
+    .name-tag small { color: #B8C0CF; font-weight: 700; margin-left: 8px; }
+    .hero-actions { display: grid; grid-template-columns: minmax(0, max-content); justify-content: start; gap: var(--s2); margin-top: var(--s3); max-width: 100%; }   /* 上下兩個選項一樣寬：寬度＝較長那個的內容，不拉到整行 */
+    .hero-actions .choice { min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .choice { text-decoration: none; border: var(--line); border-radius: var(--radius); box-shadow: var(--hard); padding: 16px 22px;
+      background: var(--white); min-width: 240px; transition: transform 0.15s, box-shadow 0.15s; }
+    .choice:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--ink); }
+    .choice b { display: block; font-size: 1.2rem; font-weight: 900; }
+    .choice small { color: var(--muted); font-size: 0.95rem; }
+    .choice.member { background: var(--primary); }
+    .choice.big { padding: 24px 40px; } .choice.big b { font-size: 1.75rem; } .choice.big small { font-size: 1.05rem; margin-top: 4px; }   /* 11/13：只剩一個大按鈕 */
+    .trust { margin-top: var(--s2); font-weight: 700; color: var(--muted); font-size: 1.05rem; }
+    .marquee { position: absolute; left: 0; right: 0; bottom: 0; background: var(--ink); color: var(--primary); border-top: var(--line);
+      overflow: hidden; white-space: nowrap; font-weight: 900; font-size: 1.05rem; padding: 10px 0; }
+    .marquee div { display: inline-block; animation: marquee 26s linear infinite; }
+    .marquee span { margin: 0 1.6rem; }
+    .marquee span::before { content: "⚡"; margin-right: 1.6rem; color: var(--yellow); }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+
+    /* ---------- 02 bZ4X 資料卡 ---------- */
+    .bio { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 60px); align-items: center; }
+    .bio-photo img { width: 100%; height: auto; display: block; transform: translateX(-14%); opacity: 0; transition: transform 1.1s var(--ease), opacity 0.8s ease; }
+    .in .bio-photo img { transform: none; opacity: 1; }
+    .bio-photo .tag { display: block; font-family: var(--num); font-size: clamp(2.6rem, 7vw, 6rem); line-height: 1; color: var(--primary);
+      -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; margin-bottom: var(--s2); }
+    .bio-photo .sub { font-weight: 900; font-size: 1.15rem; margin-top: var(--s1); }
+    .facts { display: grid; grid-template-columns: 1fr 1fr; border: var(--line); border-radius: var(--radius); box-shadow: var(--hard); background: var(--white); overflow: hidden; margin-top: var(--s3); }
+    .fact { padding: var(--s2); border-bottom: var(--line); }
+    .fact:nth-child(odd) { border-right: var(--line); }
+    .fact:nth-last-child(-n+2) { border-bottom: 0; }
+    .fact small { display: block; font-weight: 900; font-size: 1.05rem; color: var(--muted); margin-bottom: 6px; }
+    .fact b { font-family: var(--num); font-weight: 400; font-size: clamp(2rem, 4.2vw, 3.6rem); line-height: 1.05; }
+    .fact b em { font-style: normal; font-family: "Noto Sans TC", sans-serif; font-weight: 900; font-size: 0.4em; margin-left: 4px; }
+    .fact.hl { background: var(--primary); }
+    .src { font-size: 0.95rem; color: var(--muted); margin-top: var(--s2); line-height: 1.65; }
+
+    /* ---------- 03 六個好處（翻牌進場） ---------- */
+    .benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s2); margin-top: var(--s3); perspective: 1200px; }
+    .benefit { border: var(--line); border-radius: var(--radius); box-shadow: var(--hard); background: var(--white); padding: var(--s2) var(--s3) var(--s3);
+      transform: rotateX(-70deg) translateY(30px); transform-origin: top center; opacity: 0;
+      transition: transform 0.8s var(--pop), opacity 0.5s ease, box-shadow 0.15s; }
+    .in .benefit { transform: none; opacity: 1; }
+    .benefit:hover { box-shadow: 10px 10px 0 var(--ink); }
+    .benefit .badge { width: 56px; height: 56px; border: var(--line); border-radius: 16px; display: grid; place-items: center; background: var(--primary);
+      box-shadow: var(--hard-sm); transition: transform 0.3s var(--pop); }
+    .benefit:hover .badge { transform: rotate(-10deg) scale(1.12); }
+    .benefit:nth-child(3n+2) .badge { background: var(--yellow); } .benefit:nth-child(3n) .badge { background: var(--cyan); }
+    .benefit h3 { font-size: 1.55rem; font-weight: 900; margin: var(--s2) 0 6px; }
+    .benefit h3 .num { font-family: var(--num); font-weight: 400; }
+    .benefit p { color: var(--muted); font-size: 1.05rem; }
+
+    /* ---------- 04 三步驟 ---------- */
+    .steps { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s2); margin-top: var(--s3); }
+    .steps::before { content: ""; position: absolute; left: 8%; right: 8%; top: 76px; border-top: 4px dashed var(--ink); transform: scaleX(0); transform-origin: left;
+      transition: transform 1.2s var(--ease) 0.3s; z-index: 0; }
+    .in .steps::before { transform: scaleX(1); }
+    .step { position: relative; z-index: 1; border: var(--line); border-radius: var(--radius); box-shadow: var(--hard); background: var(--white); padding: var(--s3);
+      opacity: 0; transform: translateY(60px) rotate(-2deg); transition: transform 0.8s var(--ease), opacity 0.6s ease, box-shadow 0.15s; }
+    .in .step { opacity: 1; transform: none; }
+    .in .step:hover { transform: translate(-4px, -6px) rotate(-1deg); box-shadow: 10px 12px 0 var(--ink); transition-delay: 0s; }
+    .step:nth-child(2) { background: var(--cyan); } .step:nth-child(3) { background: var(--yellow); }
+    .step .n { display: inline-block; font-family: var(--num); font-size: clamp(4.5rem, 10vw, 8rem); line-height: 0.85; color: var(--primary);
+      -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; transform: scale(0.3) rotate(-20deg); opacity: 0;
+      transition: transform 0.7s var(--pop), opacity 0.3s ease; }
+    .in .step .n { transform: none; opacity: 1; }
+    .in .step:nth-child(1) .n { transition-delay: 0.35s; } .in .step:nth-child(2) .n { transition-delay: 0.55s; } .in .step:nth-child(3) .n { transition-delay: 0.75s; }
+    .step h3 { font-size: clamp(1.4rem, 2.4vw, 2rem); font-weight: 900; margin: var(--s2) 0 var(--s1); }
+    .step p { color: var(--ink); opacity: 0.85; font-size: 1.08rem; }
+
+    /* ---------- 05 時間軸 ---------- */
+    .dark { background: var(--ink); color: var(--white); }
+    .dark .lead, .dark .side-label { color: #B8C0CF; }
+    .dark .slide-no b { background: var(--primary); color: var(--ink); }
+    .timeline { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s2); margin-top: var(--s4); }
+    .timeline::before { content: ""; position: absolute; left: 0; right: 0; top: 30px; height: 4px; background: var(--primary); transform: scaleX(0); transform-origin: left;
+      transition: transform 1.4s var(--ease) 0.2s; }
+    .in .timeline::before { transform: scaleX(1); }
+    .t-item { position: relative; }
+    .t-icon { position: relative; z-index: 1; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--ink);
+      border: 3px solid var(--primary); color: var(--primary); transform: scale(0); transition: transform 0.6s var(--pop); }
+    .t-item.now .t-icon { background: var(--primary); color: var(--ink); border-color: var(--white); }
+    .in .t-icon { transform: none; }
+    .in .t-item:nth-child(1) .t-icon { transition-delay: 0.3s; } .in .t-item:nth-child(2) .t-icon { transition-delay: 0.55s; }
+    .in .t-item:nth-child(3) .t-icon { transition-delay: 0.8s; } .in .t-item:nth-child(4) .t-icon { transition-delay: 1.05s; }
+    .in .t-item:nth-child(5) .t-icon { transition-delay: 1.3s; }
+    .t-item .y { font-family: var(--num); font-size: clamp(1.8rem, 3.4vw, 2.8rem); color: var(--primary); line-height: 1.1; margin-top: var(--s2); }
+    .t-item h4 { font-size: 1.3rem; font-weight: 900; margin: 6px 0 4px; }
+    .t-item p { color: #C8CFDB; font-size: 1.05rem; }
+    .t-item.now .y::after { content: "NOW"; font-size: 0.75rem; background: var(--primary); color: var(--ink); border-radius: 999px; padding: 2px 8px; margin-left: 8px; vertical-align: middle; }
+    .dark .src { color: #8A93A6; }
+
+    /* ---------- 06 開始＋常見問題 ---------- */
+    .final { background: var(--primary); border-top: var(--line); overflow: hidden; min-height: auto; padding-top: 120px; padding-bottom: 96px; }   /* 不用撐滿一個畫面，避免大片空白 */
+    .final .choice.member { background: var(--yellow); }
+    .final-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s4); align-items: start; }   /* 常見問題和大標題同一個高度開始 */
+    .faq h3 { font-weight: 900; font-size: 1.6rem; margin-bottom: var(--s2); }
+    .faq details { border: var(--line); border-radius: 16px; background: var(--white); margin-bottom: var(--s1); box-shadow: var(--hard-sm); overflow: hidden; }
+    .faq summary { cursor: pointer; font-weight: 900; font-size: 1.15rem; padding: 16px 20px; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: "＋"; transition: transform 0.25s ease; }
+    .faq details[open] summary::after { transform: rotate(45deg); }
+    .faq details p { padding: 0 20px 18px; color: var(--muted); font-size: 1.05rem; animation: open 0.3s ease; }
+    @keyframes open { from { opacity: 0; transform: translateY(-6px); } }
+    footer { background: var(--ink); color: #B8C0CF; padding: 30px var(--gutter); font-size: 0.92rem; text-align: center; line-height: 1.7; }
+    footer p + p { margin-top: 6px; }
+
+    /* 矮螢幕（1366×768、投影機 1280×720）：首屏收緊一點，跑馬燈也要看得到 */
+    @media (min-width: 861px) and (max-height: 1000px) {   /* 11/12：1920×1080 螢幕開瀏覽器，視窗高度約 950 px，也要收緊 */
+      .hero { padding-top: 84px; }
+      .hero .giant { font-size: min(9vw, 13vh); }
+      .hero .slide-no { margin-bottom: var(--s1); }
+      .hero .lead { font-size: 1rem; margin-top: var(--s1); }
+      .hero .hero-actions { margin-top: var(--s2); }
+      .hero .choice { padding: 10px 18px; }
+      .hero .choice small { font-size: 0.82rem; }
+      .hero .choice.big { padding: 18px 32px; } .hero .choice.big b { font-size: 1.5rem; } .hero .choice.big small { font-size: 0.95rem; }
+      .hero .trust { display: none; }
+      .hero-side { gap: var(--s1); }
+      .hero-mascot { width: clamp(240px, min(34vw, 50vh), 520px); }
+      .bubble { padding: 8px 16px; }
+    }
+    @media (min-width: 861px) and (max-height: 740px) {   /* 投影機 1280×720 */
+      .hero { padding-top: 76px; }
+      .hero .giant { font-size: min(8.5vw, 12vh); }
+      .hero .lead { font-size: 0.95rem; }
+      .hero .choice b { font-size: 1.05rem; }
+      .hero-mascot { width: clamp(220px, min(30vw, 44vh), 480px); }
+    }
+
+    /* ---------- 首屏的小動畫 ---------- */
+    .giant .mark { position: relative; }
+    .hero .giant .mark { background: none; }
+    .hero .giant .mark::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--primary); border-radius: 0.08em;
+      transform: scaleX(0); transform-origin: left; transition: transform 0.7s var(--ease) 0.55s; }
+    .hero.in .giant .mark::before { transform: scaleX(1); }
+    .hero .giant .mark { isolation: isolate; }
+    .bubble.pop { animation: pop 0.45s var(--pop); }
+    @keyframes pop { 0% { transform: scale(0.7); } 100% { transform: scale(1); } }
+    .spark { position: absolute; z-index: 2; font-size: clamp(1.4rem, 2.4vw, 2.2rem); color: var(--ink); pointer-events: none; animation: twinkle 2.4s ease-in-out infinite; }
+    .spark.s2 { animation-delay: 0.6s; } .spark.s3 { animation-delay: 1.2s; } .spark.s4 { animation-delay: 1.8s; }
+    @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); } 40% { opacity: 1; transform: scale(1.15) rotate(12deg); } 70% { opacity: 1; transform: scale(1) rotate(-6deg); } }
+    .hero-mascot { position: relative; }
+    .choice.member { position: relative; overflow: hidden; }
+    .choice.member::after { content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; transform: skewX(-20deg);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent); animation: shine 3.6s ease-in-out infinite 1.5s; }
+    @keyframes shine { 0% { left: -60%; } 35%, 100% { left: 130%; } }
+    .scroll-hint { position: absolute; left: 50%; bottom: 62px; transform: translateX(-50%); font-weight: 900; font-size: 1.8rem; line-height: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 2px; animation: hint 1.6s ease-in-out infinite; text-decoration: none; }
+    @keyframes hint { 50% { transform: translate(-50%, 8px); } }
+
+    /* ---------- 06：常見問題進場、展開動畫；阿電在下面開過去 ---------- */
+    .faq details { opacity: 0; transform: translateX(60px); transition: opacity 0.5s ease, transform 0.6s var(--ease), box-shadow 0.15s; }
+    .in .faq details { opacity: 1; transform: none; }
+    .in .faq details:nth-of-type(1) { transition-delay: 0.25s; } .in .faq details:nth-of-type(2) { transition-delay: 0.35s; }
+    .in .faq details:nth-of-type(3) { transition-delay: 0.45s; } .in .faq details:nth-of-type(4) { transition-delay: 0.55s; }
+    .in .faq details:nth-of-type(5) { transition-delay: 0.65s; }
+    .in .faq details:hover { transform: translate(-3px, -3px); box-shadow: 7px 7px 0 var(--ink); transition-delay: 0s; }
+    .faq details[open] { background: var(--yellow); }
+    .faq .ans { overflow: hidden; }
+    .road { position: relative; height: 90px; margin-top: var(--s4); border-bottom: 4px dashed var(--ink); overflow: hidden; }
+    .road img { position: absolute; bottom: -22px; left: -160px; width: 140px; animation: drive 9s linear infinite; animation-play-state: paused; }
+    .in .road img { animation-play-state: running; }
+    @keyframes drive { 0% { left: -160px; } 100% { left: 100%; } }
+
+    /* ---------- 手機 ---------- */
+    @media (max-width: 860px) {
+      .slide { padding: 96px var(--gutter) var(--s4); min-height: auto; }
+      .hero { min-height: 100svh; padding-bottom: 100px; }
+      .hero .giant { font-size: 19vw; }
+      .rail, .side-label { display: none; }
+      .hero-grid, .bio, .final-grid { grid-template-columns: 1fr; }
+      .hero-mascot { width: 72vw; }
+      .benefits, .steps { grid-template-columns: 1fr; }
+      .steps::before { display: none; }
+      .timeline { grid-template-columns: 1fr; gap: var(--s3); margin-left: 4px; }
+      .timeline::before { left: 30px; right: auto; top: 0; bottom: 0; width: 4px; height: auto; transform: scaleY(0); transform-origin: top; }
+      .in .timeline::before { transform: scaleY(1); }
+      .t-item { display: grid; grid-template-columns: 64px 1fr; column-gap: var(--s2); }
+      .t-item .y { margin-top: 0; }
+      .t-item > :not(.t-icon) { grid-column: 2; }
+      .t-icon { grid-row: 1 / span 3; }
+      .choice { min-width: 0; width: 100%; }
+      .logo span { display: none; }
+      .scroll-hint { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .line > span, .rise, .bio-photo img, .benefit, .step, .step .n, .t-icon { transform: none !important; opacity: 1 !important; }
+      .steps::before, .timeline::before, .hero .giant .mark::before { transform: none !important; }
+      .faq details { opacity: 1 !important; transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a class="logo" href="#s1"><img src="assets/adian.svg?v=20261013s" alt="" /><span>阿電・誠實的電動車顧問</span></a>
+    <a class="go-btn" href="advisor.html?start=go">開始聊 →</a>
+  </div>
+  <div class="rail" aria-hidden="true"><span class="now" id="railNow">01</span><div class="bar"><i id="railBar"></i></div><span>06</span></div>
+
+  <main>
+    <!-- 01 首屏 -->
+    <section class="slide hero" id="s1" data-n="1">
+      <span class="side-label">honest ev advisor</span>
+      <div class="hero-grid">
+        <div>
+          <p class="slide-no"><b>01 / 06</b>汽油車主的電動車顧問</p>
+          <h1 class="giant">
+            <span class="line"><span class="kicker">換電動車之前，</span></span>
+            <span class="line"><span>先問<span class="mark">阿電</span></span></span>
+          </h1>
+          <p class="lead rise">花 5 分鐘聊聊你的用車生活，阿電用<b>你自己的數字</b>算清楚：換電動車能省多少、開起來多好、還有哪些要先準備。不適合，也會老實說。</p>
+          <div class="hero-actions rise d1">
+            <a class="choice member big" href="advisor.html?start=go"><b>開始和阿電聊聊 →</b><small>大約 5 分鐘・只問到「區」，不問住址</small></a>
+          </div>
+          <p class="trust rise d2">✓ 5 分鐘　✓ 不推銷　✓ 用你的數字算</p>
+        </div>
+        <div class="hero-side rise d1">
+          <p class="bubble" id="heroBubble">嗨！聊 5 分鐘就好 👋</p>
+          <div class="hero-mascot" id="heroMascot"><span class="spark" style="top:4%;left:6%">⚡</span><span class="spark s2" style="top:-4%;right:14%">✦</span>
+            <span class="spark s3" style="bottom:18%;right:-2%">⚡</span><span class="spark s4" style="bottom:30%;left:-4%">✦</span><div class="bob" id="heroBob"><img src="assets/adian.svg?v=20261013s" alt="阿電：一台綠色的卡通電動車" /></div></div>
+          <p class="name-tag">阿電 <small>Adian・誠實的電動車顧問</small></p>
+        </div>
+      </div>
+      <a class="scroll-hint" href="#s2" aria-label="往下看"><span>↓</span></a>
+      <div class="marquee" aria-hidden="true"><div>
+        <span>先誠實，後銷售</span><span>5 分鐘</span><span>用你的數字算</span><span>不適合也會老實說</span><span>真實充電站地圖</span><span>一週電動車生活模擬</span>
+        <span>先誠實，後銷售</span><span>5 分鐘</span><span>用你的數字算</span><span>不適合也會老實說</span><span>真實充電站地圖</span><span>一週電動車生活模擬</span>
+      </div></div>
+    </section>
+
+    <!-- 02 主角車款 -->
+    <section class="slide" id="s2" data-n="2">
+      <span class="side-label">toyota bz4x</span>
+      <p class="slide-no"><b>02 / 06</b>主角車款</p>
+      <div class="bio">
+        <div class="bio-photo"><span class="tag">bZ4X</span><img src="assets/bz4x_black.png?v=1" alt="TOYOTA bZ4X" onerror="this.src='assets/bz4x_white.png'" />
+          <p class="sub rise d2">Toyota 台灣的純電休旅・單一車型</p></div>
+        <div>
+          <h2 class="giant h2"><span class="line"><span>一台車，</span></span><span class="line"><span>六個數字</span></span></h2>
+          <div class="facts rise d1">
+            <div class="fact hl"><small>建議售價</small><b data-count="128">0</b><b><em>萬</em></b></div>
+            <div class="fact"><small>官方續航（NEDC）</small><b data-count="743">0</b><b><em>km</em></b></div>
+            <div class="fact"><small>快充到 80%</small><b data-count="30">0</b><b><em>分鐘</em></b></div>
+            <div class="fact"><small>最大馬力</small><b data-count="227">0</b><b><em>ps</em></b></div>
+            <div class="fact"><small>每公里電費</small><b>≈1</b><b><em>元</em></b></div>
+            <div class="fact"><small>定保費比油車低</small><b data-count="63">0</b><b><em>%</em></b></div>
+          </div>
+          <p class="src">規格與圖片：Toyota 台灣官網。快充為 CCS1 150 kW 條件下的官方數字；續航為 NEDC 測試值，阿電試算時以約 520 km 保守估算。每公里電費依 6.7 km/kWh 與家用電價試算；定保費依 U-CAR、8891 公開的養車成本。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 好處 -->
+    <section class="slide" id="s3" data-n="3" style="background:var(--mint);border-top:var(--line);border-bottom:var(--line)">
+      <span class="side-label">benefits</span>
+      <p class="slide-no"><b>03 / 06</b>開起來有什麼不一樣</p>
+      <h2 class="giant h2"><span class="line"><span>省錢，</span></span><span class="line"><span>也<span class="mark">好開</span></span></span></h2>
+      <div class="benefits">
+        <article class="benefit d1"><div class="badge"><svg class="ic" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+          <h3>能源費用低</h3><p>能源效率 6.7 km/kWh，每公里電費約 1 元；汽油每公里約 3–4 元。</p></article>
+        <article class="benefit d2"><div class="badge"><svg class="ic" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.4 2.4-2.6-.6-.6-2.6z"/></svg></div>
+          <h3>保養更省</h3><p>定期保養費比同級汽油 SUV 低約六成，不用換機油。</p></article>
+        <article class="benefit d3"><div class="badge"><svg class="ic" viewBox="0 0 24 24"><path d="M4 15a8 8 0 1 1 16 0"/><path d="m12 15 4-5"/><circle cx="12" cy="15" r="1.5"/></svg></div>
+          <h3>起步就有力</h3><p><span class="num">227</span> 匹馬力、瞬間扭力，安靜又平順。</p></article>
+        <article class="benefit d4"><div class="badge"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></div>
+          <h3>智慧安全</h3><p>TSS 3.0：PCS、全速域 ACC、LTA，360° 環景含底盤透視，8 具氣囊。</p></article>
+        <article class="benefit d5"><div class="badge"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+          <h3>數位座艙</h3><p>14 吋觸控螢幕、無線 CarPlay／Android Auto、後車廂 110V 插座。</p></article>
+        <article class="benefit d6"><div class="badge"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20 9 4M20 20 15 4M12 6v2M12 11v2M12 16v2"/></svg></div>
+          <h3>長途也安心</h3><p>官方續航 743 km（NEDC），全台 CCS1 快充可用；阿電會幫你排中途充電站。</p></article>
+      </div>
+      <p class="src">規格依 Toyota 台灣官方 bZ4X 資料；保養費比較依 U-CAR、8891 公開的養車成本；續航為 NEDC 測試值，實際依路況與天氣而異。</p>
+    </section>
+
+    <!-- 04 怎麼運作 -->
+    <section class="slide" id="s4" data-n="4">
+      <span class="side-label">how it works</span>
+      <p class="slide-no"><b>04 / 06</b>阿電怎麼幫你</p>
+      <h2 class="giant h2"><span class="line"><span>不用填表，</span></span><span class="line"><span>聊<span class="mark">三步</span></span></span></h2>
+      <p class="lead rise">三個步驟，五分鐘，不需要填表。</p>
+      <div class="steps">
+        <article class="step d1"><div class="n">1</div><h3>聊 5 分鐘</h3><p>告訴阿電你開什麼車、住在哪裡、平常怎麼用車、能不能在家或公司充電。打字或用說的都可以。</p></article>
+        <article class="step d2"><div class="n">2</div><h3>用你的數字算</h3><p>依你的里程試算每月能源費、比較保養費，在地圖上模擬你的一週，標出附近真實的充電站。所有假設都可以自己調整。</p></article>
+        <article class="step d3"><div class="n">3</div><h3>誠實的結論</h3><p>很適合、適合但差一個障礙，或現在不建議。不適合的話，阿電會直接說，並推薦油電混合車。</p></article>
+      </div>
+    </section>
+
+    <!-- 05 為什麼是現在 -->
+    <section class="slide dark" id="s5" data-n="5">
+      <span class="side-label">why now</span>
+      <p class="slide-no"><b>05 / 06</b>為什麼是現在</p>
+      <h2 class="giant h2"><span class="line"><span>現在換，</span></span><span class="line"><span>就是<span style="color:var(--primary)">先行者</span></span></span></h2>
+      <p class="lead rise">台灣已經訂好電動化的時間表；bZ4X 也比剛上市時便宜很多。</p>
+      <div class="timeline">
+        <div class="t-item"><div class="t-icon"><svg class="ic" viewBox="0 0 24 24"><path d="M5 17h14l-1.5-5.5A2 2 0 0 0 15.6 10H8.4a2 2 0 0 0-1.9 1.5z"/><circle cx="8" cy="17" r="2"/><circle cx="16" cy="17" r="2"/></svg></div>
+          <div class="y">2022</div><h4>bZ4X 在台上市</h4><p>159.9 萬起，最高曾到 167 萬</p></div>
+        <div class="t-item now"><div class="t-icon"><svg class="ic" viewBox="0 0 24 24"><path d="M20 12 12 20 4 12V4h8z"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></div>
+          <div class="y">今天</div><h4>128 萬</h4><p>便宜 30 萬以上，電池更大、續航多 100 多公里</p></div>
+        <div class="t-item"><div class="t-icon"><svg class="ic" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+          <div class="y">2030</div><h4>牌照稅</h4><p>電動車使用牌照稅現行免徵到 2030 年底</p></div>
+        <div class="t-item"><div class="t-icon"><svg class="ic" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+          <div class="y">2040</div><h4>新售小客車</h4><p>國家目標：全面電動化</p></div>
+        <div class="t-item"><div class="t-icon"><svg class="ic" viewBox="0 0 24 24"><path d="M12 22V12"/><path d="M12 12C12 7 8 4 4 4c0 5 3 8 8 8z"/><path d="M12 14c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg></div>
+          <div class="y">2050</div><h4>淨零排放</h4><p>國發會 2050 淨零路徑</p></div>
+      </div>
+      <p class="src" style="margin-top:var(--s3)">價格：Toyota 台灣官網與 U-CAR 報導；政策：國發會 2050 淨零排放路徑、現行使用牌照稅與汽燃費規定。</p>
+    </section>
+
+    <!-- 06 開始＋常見問題 -->
+    <section class="slide final" id="s6" data-n="6">
+      <span class="side-label">talk to adian</span>
+      <p class="slide-no"><b>06 / 06</b>開始</p>
+      <div class="final-grid">
+        <div>
+          <h2 class="giant h2"><span class="line"><span>聊 5 分鐘，</span></span><span class="line"><span>看你的答案</span></span></h2>
+          <div class="rise">
+          <p class="lead" style="color:var(--ink)">會員帶入保養紀錄，新朋友回答幾題，阿電會依你的車主類型給建議。可以打字、按麥克風說話，也可以開聲音聽阿電說。</p>
+          <div class="hero-actions">
+            <a class="choice member big" href="advisor.html?start=go"><b>開始和阿電聊聊 →</b><small>大約 5 分鐘・只問到「區」，不問住址</small></a>
+          </div>
+          </div>
+        </div>
+        <div class="faq rise d2">
+          <h3>常見問題</h3>
+          <details><summary>阿電的數字是怎麼算的？</summary><div class="ans"><p>能源費依你提供的每日里程，加上頁面上可以自己修改的假設（油價、油耗、電價）試算。保養費比較依 U-CAR、8891 公開的養車成本；車輛規格依 Toyota 台灣官方資料；充電站來自交通部 TDX。數字由程式計算，不是 AI 猜的。</p></div></details>
+          <details><summary>阿電會不會只想賣車給我？</summary><div class="ans"><p>不會。阿電的原則是「先誠實，後銷售」。如果電動車現在不適合你，阿電會直接說明原因，並建議你看看 Toyota 的油電混合車款。</p></div></details>
+          <details><summary>家裡不能裝充電樁，也能開電動車嗎？</summary><div class="ans"><p>可以，但需要先規劃固定的公共充電地點。阿電會看你家附近最近的快充站有多遠、每週要充幾次，並在地圖上標出真實的充電站。</p></div></details>
+          <details><summary>電池保固多久？</summary><div class="ans"><p>最新正式的電池保固條件，請以 Toyota 台灣官方及業務提供的資料為準，阿電不隨便說數字。</p></div></details>
+          <details><summary>我的對話會被保存嗎？</summary><div class="ans"><p>這是 Demo 版本，不會記錄你的身分。你的聲音在我們自己的主機上辨識，不送到外部；為了產生阿電的聲音，阿電說的句子會送到語音服務。正式版只有在你同意後，才會把諮詢摘要交給業務。</p></div></details>
+        </div>
+      </div>
+      <div class="road" aria-hidden="true"><img src="assets/adian.svg?v=20261013s" alt="" /></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>資料來源：Toyota 台灣 bZ4X 官方規格、交通部 TDX、國發會 2050 淨零路徑</p>
+    <p>※ 本網站為黑客松概念展示，並非和泰汽車或 Toyota 官方網站。頁面上的金額、續航、充電時間、充電站與建議皆為依公開資料與模型推估的結果，僅供參考；實際規格、價格與優惠請以原廠公告及經銷商報價為準。</p>
+    <p>Demo — 2026 和泰 AI 黑客松</p>
+  </footer>
+
+  <script src="assets/adian-avatar.js?v=20261105u"></script>
+  <script>
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // 數字往上跳
+    function countUp(el) {
+      const to = +el.dataset.count;
+      if (reduce) { el.textContent = to; return; }
+      const t0 = performance.now(), dur = 1100;
+      const step = now => { const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(to * e); if (p < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    }
+    // 每次進入畫面都重播（離開畫面時重設）
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting) {
+        if (e.target.classList.contains('in')) return;
+        e.target.classList.add('in');
+        e.target.querySelectorAll('[data-count]').forEach(countUp);
+      } else {
+        e.target.classList.remove('in');
+        e.target.querySelectorAll('[data-count]').forEach(el => { el.textContent = '0'; });
+      }
+    }), { threshold: 0.12 });
+    document.querySelectorAll('.slide').forEach(s => io.observe(s));
+
+    // 右側分段指示（01／06）
+    const slides = [...document.querySelectorAll('.slide')];
+    const railNow = document.getElementById('railNow'), railBar = document.getElementById('railBar');
+    const io2 = new IntersectionObserver(entries => entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const n = +e.target.dataset.n;
+      railNow.textContent = String(n).padStart(2, '0'); railBar.style.height = (n / slides.length * 100) + '%';
+    }), { threshold: 0.5 });
+    slides.forEach(s => io2.observe(s));
+
+    // 首屏的阿電：會眨眼的版本（上下輕輕浮動在 CSS），滑鼠移動時輕輕跟著
+    const hero = document.getElementById('heroMascot'), bob = document.getElementById('heroBob');
+    if (window.AdianAvatar) AdianAvatar.mount(bob, { src: 'assets/adian-rig.svg?v=20261013s', size: bob.clientWidth || 420 })
+      .then(a => { a.setVoiceEnabled(false); a.setMood('happy'); }).catch(() => {});
+    // 有滑鼠的裝置：阿電的眼睛跟著滑鼠（手機沒有滑鼠就不做）
+    const finePointer = window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches;
+    let eyeX = 0, eyeY = 0, lastMove = 0;
+    if (finePointer && !reduce) {
+      addEventListener('pointermove', e => {
+        const r = bob.getBoundingClientRect(), cx = r.left + r.width * 0.62, cy = r.top + r.height * 0.32;   // 眼睛大約在車頭上方
+        const dx = e.clientX - cx, dy = e.clientY - cy, d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 300);
+        eyeX = dx / d * 6 * k; eyeY = dy / d * 5 * k; lastMove = performance.now();
+      }, { passive: true });
+      const eyes = () => {
+        if (performance.now() - lastMove < 4000) {
+          bob.querySelectorAll('[id$="pupil-l"], [id$="pupil-r"]').forEach(p => { p.style.transform = `translate(${eyeX.toFixed(1)}px, ${eyeY.toFixed(1)}px)`; });
+        }
+        requestAnimationFrame(eyes);
+      };
+      requestAnimationFrame(eyes);
+    }
+    // 對話泡泡輪流換句子
+    const lines = ['嗨！聊 5 分鐘就好 👋', '適不適合，我老實說 🙂', '用你自己的數字算 ⚡', '還會模擬你的一週 🗺️'];
+    let li = 0;
+    const bubbleEl = document.getElementById('heroBubble');
+    if (!reduce) setInterval(() => {
+      if (document.hidden) return;
+      li = (li + 1) % lines.length; bubbleEl.textContent = lines[li];
+      bubbleEl.classList.remove('pop'); void bubbleEl.offsetWidth; bubbleEl.classList.add('pop');
+    }, 3200);
+    // 常見問題：展開／收合時高度平滑變化
+    document.querySelectorAll('.faq details').forEach(d => {
+      const sum = d.querySelector('summary'), ans = d.querySelector('.ans');
+      sum.addEventListener('click', e => {
+        if (reduce || !ans.animate) return;
+        e.preventDefault();
+        if (d.open) {
+          const h = ans.offsetHeight;
+          ans.animate([{ height: h + 'px', opacity: 1 }, { height: '0px', opacity: 0 }], { duration: 260, easing: 'ease' }).onfinish = () => { d.open = false; };
+        } else {
+          d.open = true;
+          const h = ans.offsetHeight;
+          ans.animate([{ height: '0px', opacity: 0 }, { height: h + 'px', opacity: 1 }], { duration: 320, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' });
+        }
+      });
+    });
+    if (!reduce) {
+      let mx = 0, my = 0, ticking = false;
+      const apply = () => { ticking = false; hero.style.transform = `translate(${mx * 16}px, ${my * 12}px) rotate(${mx * 3}deg)`; };
+      addEventListener('pointermove', e => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5;
+        if (!ticking) { ticking = true; requestAnimationFrame(apply); } }, { passive: true });
+    }
+  </script>
+</body>
+</html>

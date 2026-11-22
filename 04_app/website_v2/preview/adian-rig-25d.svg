@@ -1,0 +1,245 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#8CFF9F"/>
+      <stop offset="0.45" stop-color="#27F550"/>
+      <stop offset="1" stop-color="#0A7A2B"/>
+    </linearGradient>
+    <linearGradient id="nose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.3"/>
+      <stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="noseShine" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A3550"/>
+      <stop offset="1" stop-color="#141B2D"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E4A78"/>
+      <stop offset="1" stop-color="#1B2A4A"/>
+    </linearGradient>
+    <linearGradient id="intake" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#232C42"/>
+      <stop offset="1" stop-color="#0E1322"/>
+    </linearGradient>
+    <radialGradient id="iris" cx="0.4" cy="0.35" r="0.65">
+      <stop offset="0" stop-color="#8CFF9F"/>
+      <stop offset="1" stop-color="#0A7A2B"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#67E8F9" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#67E8F9" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EEF2F7"/>
+      <stop offset="1" stop-color="#A9B4C2"/>
+    </linearGradient>
+    <!-- rig: clip pupils to the eye whites so they can look around -->
+    <clipPath id="adian-clip-eye-l"><ellipse cx="316" cy="216" rx="30" ry="28"/></clipPath>
+    <clipPath id="adian-clip-eye-r"><ellipse cx="379" cy="218" rx="28" ry="27"/></clipPath>
+    <clipPath id="adian-clip-mouth-half"><path d="M416 325 Q438 332 460 324 Q454 347 438 347 Q422 347 416 325 Z"/></clipPath>
+    <clipPath id="adian-clip-mouth-open"><path d="M412 322 Q438 331 464 321 Q459 358 438 358 Q417 358 412 322 Z"/></clipPath>
+    <!-- 2.5D: moving specular light, clipped to the car's silhouette -->
+    <radialGradient id="spec25" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="shade25" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0.55" stop-color="#0A2A14" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0A2A14" stop-opacity="0.28"/>
+    </linearGradient>
+    <clipPath id="clip25"><path d="M46 352 Q36 300 74 286 L262 260 L436 250 Q488 258 503 300 Q509 340 490 366 Q484 378 466 380 L360 396 Q340 400 300 398 L80 384 Q50 380 46 352 Z"/><path d="M66 286 C96 222 168 180 250 172 C322 166 384 178 412 198 C430 212 446 236 452 254 Q300 262 66 286 Z"/></clipPath>
+  </defs>
+
+  <g transform="translate(0,-49)">
+  <!-- ground shadow -->
+  <ellipse id="l-shadow" cx="275" cy="434" rx="240" ry="15" fill="#1B2A4A" opacity="0.14"/>
+
+  <g id="l-far">
+  <!-- far-side wheels (behind the body, slightly darker; only the lower half shows) -->
+  <!-- far rear wheel -->
+  <g stroke="#1B2A4A" stroke-width="3" stroke-linejoin="round">
+    <ellipse cx="241" cy="392" rx="25" ry="40" fill="#0E1322"/>
+    <path d="M241 352 L230 352 A25 40 0 0 0 230 432 L241 432 A25 40 0 0 0 241 352 Z" fill="#0E1322"/>
+    <ellipse cx="230" cy="392" rx="25" ry="40" fill="#1B2A4A"/>
+    <ellipse cx="231" cy="392" rx="14" ry="23" fill="#141B2D" stroke="#3A4560" stroke-width="2"/>
+  </g>
+  <path d="M249 364 L257 364 M256 392 L264 392 M249 420 L257 420" stroke="#2A3346" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- far front wheel -->
+  <g stroke="#1B2A4A" stroke-width="3" stroke-linejoin="round">
+    <ellipse cx="465" cy="389" rx="28" ry="45" fill="#0E1322"/>
+    <path d="M465 344 L452 344 A28 45 0 0 0 452 434 L465 434 A28 45 0 0 0 465 344 Z" fill="#0E1322"/>
+    <ellipse cx="452" cy="389" rx="28" ry="45" fill="#1B2A4A"/>
+    <ellipse cx="453" cy="389" rx="15" ry="26" fill="#141B2D" stroke="#3A4560" stroke-width="2"/>
+  </g>
+  <path d="M473 358 L483 358 M482 389 L492 389 M473 420 L483 420" stroke="#2A3346" stroke-width="2.5" stroke-linecap="round"/>
+
+  </g>
+  <g id="l-body">
+  <!-- glossy black fastback cabin -->
+  <path d="M66 286 C96 222 168 180 250 172 C322 166 384 178 412 198 C430 212 446 236 452 254 Q300 262 66 286 Z"
+        fill="url(#roof)" stroke="#1B2A4A" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M118 238 C160 204 208 188 258 182" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" opacity="0.3"/>
+
+  <!-- side window + pillar -->
+  <path d="M104 270 C124 228 168 200 228 192 Q250 189 254 200 L252 258 Z"
+        fill="url(#glass)" stroke="#1B2A4A" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M184 200 L178 264" stroke="#141B2D" stroke-width="8"/>
+  <path d="M130 254 C146 230 160 218 172 212 L168 246 Z" fill="#FFFFFF" opacity="0.16"/>
+
+  <!-- windshield -->
+  <path d="M264 248 L280 196 Q286 182 304 182 L384 186 Q402 189 410 204 Q424 228 433 246 Q436 253 426 253 Q340 256 270 256 Q260 255 264 248 Z"
+        fill="url(#glass)" stroke="#1B2A4A" stroke-width="4" stroke-linejoin="round"/>
+
+  <!-- body: side + hood + rounded low nose -->
+  <path d="M46 352 Q36 300 74 286 L262 260 L436 250 Q488 258 503 300 Q509 340 490 366 Q484 378 466 380 L360 396 Q340 400 300 398 L80 384 Q50 380 46 352 Z"
+        fill="url(#body)" stroke="#1B2A4A" stroke-width="5" stroke-linejoin="round"/>
+
+  <!-- hood + nose planes -->
+  <path d="M262 262 L436 252 Q480 258 498 292 Q440 280 376 282 Q320 266 262 262 Z" fill="#FFFFFF" opacity="0.22"/>
+  <path d="M376 282 Q440 280 498 292 Q509 336 490 366 Q484 378 466 380 L362 394 Q352 334 376 282 Z" fill="url(#nose)"/>
+  <path d="M376 283 Q362 330 362 392" fill="none" stroke="#0A7A2B" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+  <!-- cowl: soft highlight blending windshield into hood -->
+  <path d="M272 264 Q356 256 444 256" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" opacity="0.18"/>
+  <path d="M276 262 Q356 255 440 255" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+  <!-- rounded nose highlight -->
+  <ellipse cx="438" cy="318" rx="44" ry="20" fill="url(#noseShine)"/>
+
+  <!-- body-colour spindle: two sculpted lines from the lamps flaring down to the lower corners -->
+  <path d="M418 304 Q404 326 384 346 M456 305 Q472 326 488 343" fill="none" stroke="#0A7A2B" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <path d="M415 306 Q401 327 382 345 M459 307 Q474 327 489 340" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- shoulder reflection, door cuts, flush handle, side skirt -->
+  <path d="M80 300 Q220 280 360 286" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+  <path d="M160 290 Q156 340 162 384 M262 270 Q258 330 262 392" fill="none" stroke="#0A7A2B" stroke-width="2"/>
+  <rect x="200" y="304" width="30" height="6" rx="3" fill="#141B2D" opacity="0.75"/>
+  <path d="M170 386 L280 393 L278 400 L170 393 Z" fill="#141B2D"/>
+
+  <!-- charging port on front fender -->
+  <g transform="translate(318 292) scale(2.2) translate(-318 -292)">
+    <circle cx="318" cy="292" r="19" fill="url(#glow)"/>
+    <ellipse cx="318" cy="292" rx="8" ry="9" fill="#67E8F9" stroke="#1B2A4A" stroke-width="2.5"/>
+    <path d="M315 288 L315 292 M321 288 L321 292 M313.5 292 L322.5 292 L321 296 L315 296 Z"
+          fill="#FFFFFF" stroke="#1B2A4A" stroke-width="1.2" stroke-linejoin="round"/>
+  </g>
+
+  <!-- side mirror (black cap) -->
+  <ellipse cx="264" cy="262" rx="16" ry="9" fill="#141B2D" stroke="#1B2A4A" stroke-width="3"/>
+
+  <!-- blade headlights + light bar -->
+  <path d="M420 297 L454 299" stroke="#67E8F9" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+  <path d="M420 297 L454 299" stroke="#67E8F9" stroke-width="2" stroke-linecap="round"/>
+  <path d="M350 282 Q386 292 422 294 L420 301 Q384 301 354 290 Z" fill="#141B2D" stroke="#1B2A4A" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M356 287 Q388 295 418 297" fill="none" stroke="#67E8F9" stroke-width="3" stroke-linecap="round"/>
+  <path d="M452 295 Q478 295 501 298 L498 305 Q476 304 454 302 Z" fill="#141B2D" stroke="#1B2A4A" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M458 299 L496 301" stroke="#67E8F9" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- lower spindle intake: corners sweep up towards the lamps -->
+  <path d="M380 340 Q392 362 414 366 Q438 372 462 365 Q482 358 490 336 L493 352 Q490 374 470 377 L368 390 Q366 362 380 340 Z"
+        fill="url(#intake)" stroke="#1B2A4A" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M392 374 L474 366" stroke="#67E8F9" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- cheeks -->
+  <g id="cheeks">
+    <ellipse id="cheek-l" cx="391" cy="312" rx="8" ry="5" fill="#FF8FA8" opacity="0.9"/>
+    <ellipse id="cheek-r" cx="479" cy="311" rx="7" ry="5" fill="#FF8FA8" opacity="0.9"/>
+  </g>
+
+  <!-- closed smile -->
+  <path id="mouth" d="M414 324 Q438 351 462 323" fill="none" stroke="#1B2A4A" stroke-width="6.5" stroke-linecap="round"/>
+  <path id="dimples" d="M409 319 Q411 325 417 327 M467 318 Q465 324 459 326" fill="none" stroke="#1B2A4A" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- rig: alternative mouth shapes (hidden by default) -->
+  <g id="mouth-half" opacity="0">
+    <path d="M416 325 Q438 332 460 324 Q454 347 438 347 Q422 347 416 325 Z" fill="#1B2A4A"/>
+    <g clip-path="url(#adian-clip-mouth-half)">
+      <ellipse cx="440" cy="347" rx="13" ry="10" fill="#FF7A59"/>
+    </g>
+    <path d="M416 325 Q438 332 460 324 Q454 347 438 347 Q422 347 416 325 Z" fill="none" stroke="#1B2A4A" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+  <g id="mouth-open" opacity="0">
+    <path d="M412 322 Q438 331 464 321 Q459 358 438 358 Q417 358 412 322 Z" fill="#1B2A4A"/>
+    <g clip-path="url(#adian-clip-mouth-open)">
+      <ellipse cx="440" cy="359" rx="17" ry="13" fill="#FF7A59"/>
+    </g>
+    <path d="M412 322 Q438 331 464 321 Q459 358 438 358 Q417 358 412 322 Z" fill="none" stroke="#1B2A4A" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+  <g id="mouth-o" opacity="0">
+    <ellipse cx="438" cy="336" rx="8" ry="10" fill="#1B2A4A" stroke="#1B2A4A" stroke-width="3"/>
+    <ellipse cx="438" cy="341" rx="4.5" ry="3" fill="#FF7A59"/>
+  </g>
+  <path id="mouth-flat" opacity="0" d="M424 338 Q438 332 452 338" fill="none" stroke="#1B2A4A" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- 2.5D light: lower-body shade + a highlight that slides with the tilt -->
+  <g id="l-light" clip-path="url(#clip25)" pointer-events="none">
+    <rect x="30" y="160" width="490" height="250" fill="url(#shade25)"/>
+    <ellipse id="l-spec" cx="300" cy="250" rx="190" ry="95" fill="url(#spec25)"/>
+  </g>
+  </g>
+  <g id="l-near">
+  <!-- near rear wheel -->
+  <path d="M81 388 A40 58 0 0 1 161 388 Z" fill="#141B2D"/>
+  <g stroke="#1B2A4A" stroke-width="4" stroke-linejoin="round">
+    <ellipse cx="134" cy="388" rx="31" ry="50" fill="#0E1322"/>
+    <path d="M134 338 L120 338 A31 50 0 0 0 120 438 L134 438 A31 50 0 0 0 134 338 Z" fill="#0E1322"/>
+    <ellipse cx="120" cy="388" rx="31" ry="50" fill="#1B2A4A"/>
+    <ellipse cx="121" cy="388" rx="20" ry="34" fill="url(#rim)"/>
+  </g>
+  <path d="M144 353 L155 353 M152 388 L164 388 M144 423 L155 423" stroke="#2A3346" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M121 388 L139 388 M121 388 L127 417 M121 388 L106 406 M121 388 L106 370 M121 388 L127 359" stroke="#7D8A9C" stroke-width="3.5" stroke-linecap="round"/>
+  <ellipse cx="121" cy="388" rx="4" ry="5" fill="#67E8F9" stroke="#1B2A4A" stroke-width="1.5"/>
+
+  <!-- near front wheel -->
+  <path d="M293 390 A40 58 0 0 1 373 390 Z" fill="#141B2D"/>
+  <g stroke="#1B2A4A" stroke-width="4" stroke-linejoin="round">
+    <ellipse cx="346" cy="388" rx="31" ry="50" fill="#0E1322"/>
+    <path d="M346 338 L332 338 A31 50 0 0 0 332 438 L346 438 A31 50 0 0 0 346 338 Z" fill="#0E1322"/>
+    <ellipse cx="332" cy="388" rx="31" ry="50" fill="#1B2A4A"/>
+    <ellipse cx="333" cy="388" rx="20" ry="34" fill="url(#rim)"/>
+  </g>
+  <path d="M356 353 L367 353 M364 388 L376 388 M356 423 L367 423" stroke="#2A3346" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M333 388 L351 388 M333 388 L339 417 M333 388 L318 406 M333 388 L318 370 M333 388 L339 359" stroke="#7D8A9C" stroke-width="3.5" stroke-linecap="round"/>
+  <ellipse cx="333" cy="388" rx="4" ry="5" fill="#67E8F9" stroke="#1B2A4A" stroke-width="1.5"/>
+
+  </g>
+  <g id="l-face">
+  <!-- eyes on the windshield + LED brows (rigged) -->
+  <g id="eyes">
+    <g id="eye-l">
+      <ellipse cx="316" cy="216" rx="30" ry="28" fill="#FFFFFF" stroke="#1B2A4A" stroke-width="3"/>
+      <g clip-path="url(#adian-clip-eye-l)">
+        <g id="pupil-l" class="adian-pupil">
+          <circle cx="314" cy="221" r="17" fill="url(#iris)" stroke="#1B2A4A" stroke-width="3"/>
+          <circle cx="313" cy="223" r="8" fill="#1B2A4A"/>
+          <circle cx="307" cy="214" r="5" fill="#FFFFFF"/>
+          <circle cx="320" cy="230" r="2.2" fill="#FFFFFF"/>
+        </g>
+      </g>
+      <ellipse cx="316" cy="216" rx="30" ry="28" fill="none" stroke="#1B2A4A" stroke-width="3"/>
+    </g>
+    <g id="eye-r">
+      <ellipse cx="379" cy="218" rx="28" ry="27" fill="#FFFFFF" stroke="#1B2A4A" stroke-width="3"/>
+      <g clip-path="url(#adian-clip-eye-r)">
+        <g id="pupil-r" class="adian-pupil">
+          <circle cx="376" cy="223" r="16" fill="url(#iris)" stroke="#1B2A4A" stroke-width="3"/>
+          <circle cx="375" cy="225" r="7.5" fill="#1B2A4A"/>
+          <circle cx="369" cy="216" r="4.5" fill="#FFFFFF"/>
+          <circle cx="382" cy="232" r="2.2" fill="#FFFFFF"/>
+        </g>
+      </g>
+      <ellipse cx="379" cy="218" rx="28" ry="27" fill="none" stroke="#1B2A4A" stroke-width="3"/>
+    </g>
+  </g>
+  <g id="brows" fill="none" stroke="#67E8F9" stroke-width="3.5" stroke-linecap="round">
+    <path id="brow-l" d="M296 191 Q316 183 336 190"/>
+    <path id="brow-r" d="M362 192 Q380 185 398 193"/>
+  </g>
+  </g>
+  </g>
+</svg>

@@ -1,0 +1,4 @@
+{
+  "_comment": "Case-insensitive find -> replace applied to input text before TTS. Use to fix brand names / abbreviations. Bopomofo hints also work, e.g. \"行\": \"行[:ㄏㄤ2]\" (use sparingly). Hot-reloaded.",
+  "bZ4X": "bZ four X"
+}

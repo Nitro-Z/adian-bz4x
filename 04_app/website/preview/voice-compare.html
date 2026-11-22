@@ -1,0 +1,56 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow"><title>So sánh giọng 阿電</title>
+<style>:root{--g:#27F550;--ink:#141B2D;--y:#FFD84D;--bg:#F6F7F2;--muted:#4B5568}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif}
+header{background:var(--y);border-bottom:3px solid var(--ink);padding:.9rem 1.2rem;font-weight:900}header small{font-weight:700;color:var(--muted);margin-left:.6rem}
+main{max-width:1200px;margin:1.2rem auto;padding:0 1rem;display:grid;gap:1.1rem}
+.card{background:#fff;border:3px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 var(--ink);padding:1rem 1.2rem}
+.card h2{margin:0;font-size:1rem;color:#0A7A2B}.line{font-size:1.15rem;font-weight:800;margin:.3rem 0 .8rem}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.grid h3{margin:0 0 .4rem;font-size:.95rem}audio{width:100%}
+.heard{font-size:.82rem;color:var(--muted);margin:.4rem 0 0}.note{background:#fff;border:2px dashed var(--ink);border-radius:14px;padding:.8rem 1rem;font-size:.92rem}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}.vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}.vcard{border:2px solid #141B2D;border-radius:14px;padding:.7rem .8rem}.vcard h3{margin:0 0 .3rem;font-size:1rem}.vcard small{color:#4B5568;font-weight:700}.lbl{margin:.4rem 0 .2rem;font-size:.8rem;font-weight:800}@media(max-width:1000px){.vgrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.vgrid{grid-template-columns:1fr}}</style></head><body>
+<header>So sánh giọng 阿電: BreezyVoice vs Gemini 3.8 Flash TTS <small>Chỉ để nhóm nghe thử; web demo vẫn dùng BreezyVoice</small></header>
+<main><p class="note">Cùng 4 câu thoại thật của 阿電. BreezyVoice chạy trên máy lab (tốc độ 1.15×). Gemini 3.8 Flash TTS chạy trên Google Cloud (Preview), không thêm lời dặn phong cách vì model này đọc luôn lời dặn thành tiếng. Dòng "Whisper nghe" là AI nghe lại để kiểm tra đọc đúng hay sai.</p><section class="card"><h2>Thêm 8 giọng nữ sáng, trong, trẻ trung (Gemini 3.8 Flash TTS)</h2>
+<p class="line" style="font-size:1rem">Câu 1: 王太太您好！不用跑展示中心，聊五分鐘就好。我會老實告訴你，電動車適不適合你。<br>Câu 3: 看，這是你開電動車的一週：這一週電費 NT$ 155，同樣里程的油錢要 NT$ 497。</p>
+<div class="vgrid"><div class="vcard"><h3>Leda <small>trẻ trung (Youthful)</small></h3>
+      <p class="lbl">Câu 1 · chào hỏi</p><audio controls preload="none" src="voices/l1_gemini_Leda.wav"></audio>
+      <p class="lbl">Câu 3 · tiền điện / xăng</p><audio controls preload="none" src="voices/l3_gemini_Leda.wav"></audio>
+      <p class="heard">✅ Whisper nghe đúng cả 2 câu</p></div><div class="vcard"><h3>Zephyr <small>tươi sáng (Bright)</small></h3>
+      <p class="lbl">Câu 1 · chào hỏi</p><audio controls preload="none" src="voices/l1_gemini_Zephyr.wav"></audio>
+      <p class="lbl">Câu 3 · tiền điện / xăng</p><audio controls preload="none" src="voices/l3_gemini_Zephyr.wav"></audio>
+      <p class="heard">⚠️ câu 3 đọc 「元…塊」</p></div><div class="vcard"><h3>Autonoe <small>sáng (Bright)</small></h3>
+      <p class="lbl">Câu 1 · chào hỏi</p><audio controls preload="none" src="voices/l1_gemini_Autonoe.wav"></audio>
+      <p class="lbl">Câu 3 · tiền điện / xăng</p><audio controls preload="none" src="voices/l3_gemini_Autonoe.wav"></audio>
+      <p class="heard">✅ Whisper nghe đúng cả 2 câu</p></div><div class="vcard"><h3>Laomedeia <small>vui tươi (Upbeat)</small></h3>
+      <p class="lbl">Câu 1 · chào hỏi</p><audio controls preload="none" src="voices/l1_gemini_Laomedeia.wav"></audio>
+      <p class="lbl">Câu 3 · tiền điện / xăng</p><audio controls preload="none" src="voices/l3_gemini_Laomedeia.wav"></audio>
+      <p class="heard">⚠️ đọc tiền thành 「塊」</p></div><div class="vcard"><h3>Erinome <small>trong trẻo (Clear)</small></h3>
+      <p class="lbl">Câu 1 · chào hỏi</p><audio controls preload="none" src="voices/l1_gemini_Erinome.wav"></audio>
+      <p class="lbl">Câu 3 · tiền điện / xăng</p><audio controls preload="none" src="voices/l3_gemini_Erinome.wav"></audio>
+      <p class="heard">✅ Whisper nghe đúng cả 2 câu</p></div><div class="vcard"><h3>Despina <small>mượt mà (Smooth)</small></h3>
+      <p class="lbl">Câu 1 · chào hỏi</p><audio controls preload="none" src="voices/l1_gemini_Despina.wav"></audio>
+      <p class="lbl">Câu 3 · tiền điện / xăng</p><audio controls preload="none" src="voices/l3_gemini_Despina.wav"></audio>
+      <p class="heard">⚠️ đọc tiền thành 「塊」</p></div><div class="vcard"><h3>Achernar <small>nhẹ nhàng (Soft)</small></h3>
+      <p class="lbl">Câu 1 · chào hỏi</p><audio controls preload="none" src="voices/l1_gemini_Achernar.wav"></audio>
+      <p class="lbl">Câu 3 · tiền điện / xăng</p><audio controls preload="none" src="voices/l3_gemini_Achernar.wav"></audio>
+      <p class="heard">⚠️ tự thêm chữ 「呢」 ở cuối câu 3</p></div><div class="vcard"><h3>Callirrhoe <small>thoải mái (Easy-going)</small></h3>
+      <p class="lbl">Câu 1 · chào hỏi</p><audio controls preload="none" src="voices/l1_gemini_Callirrhoe.wav"></audio>
+      <p class="lbl">Câu 3 · tiền điện / xăng</p><audio controls preload="none" src="voices/l3_gemini_Callirrhoe.wav"></audio>
+      <p class="heard">✅ Whisper nghe đúng cả 2 câu</p></div></div></section>
+<section class="card"><h2>Câu 1</h2><p class="line">王太太您好！不用跑展示中心，聊五分鐘就好。我會老實告訴你，電動車適不適合你。</p><div class="grid">
+      <div><h3>BreezyVoice (đang dùng)</h3><audio controls preload="none" src="voices/l1_breezy.wav"></audio><p class="heard">Whisper nghe: 王太太您好，不用跑展示中心，聊五分鐘就好。我會老實告訴您，電動車適不適合你。</p></div>
+      <div><h3>Gemini TTS · giọng Aoede</h3><audio controls preload="none" src="voices/l1_gemini_Aoede.wav"></audio><p class="heard">Whisper nghe: 王太太您好，不用跑展示中心，聊五分鐘就好，我會老實告訴你，電動車適不適合你。</p></div>
+      <div><h3>Gemini TTS · giọng Kore</h3><audio controls preload="none" src="voices/l1_gemini_Kore.wav"></audio><p class="heard">Whisper nghe: 王太太您好，不用跑展示中心，聊五分鐘就好，我會老實告訴你電動車適不適合你。</p></div>
+    </div></section><section class="card"><h2>Câu 2</h2><p class="line">這是適合你的 bZ4X。官方續航 743 公里，實際大約 520 公里，快充 30 分鐘就能到八成。</p><div class="grid">
+      <div><h3>BreezyVoice (đang dùng)</h3><audio controls preload="none" src="voices/l2_breezy.wav"></audio><p class="heard">Whisper nghe: 這是適合你的 BZ-4X。官方續航 743 公里，實際大約 520 公里，快充 30 分鐘就能到八成。</p></div>
+      <div><h3>Gemini TTS · giọng Aoede</h3><audio controls preload="none" src="voices/l2_gemini_Aoede.wav"></audio><p class="heard">Whisper nghe: 這是適合你的 BZ4X，官方續航 743 公里，時機大約 520 公里，快充 30 分鐘就能到八成。</p></div>
+      <div><h3>Gemini TTS · giọng Kore</h3><audio controls preload="none" src="voices/l2_gemini_Kore.wav"></audio><p class="heard">Whisper nghe: 這是適合你的 BZ-4X，官方續航 743 公里，實際大約 520 公里，快充 30 分鐘就能到八成。</p></div>
+    </div></section><section class="card"><h2>Câu 3</h2><p class="line">看，這是你開電動車的一週：這一週電費 NT$ 155，同樣里程的油錢要 NT$ 497。</p><div class="grid">
+      <div><h3>BreezyVoice (đang dùng)</h3><audio controls preload="none" src="voices/l3_breezy.wav"></audio><p class="heard">Whisper nghe: ……電費 NT $155，同樣里程的油錢要 NT $497。</p></div>
+      <div><h3>Gemini TTS · giọng Aoede</h3><audio controls preload="none" src="voices/l3_gemini_Aoede.wav"></audio><p class="heard">Whisper nghe: ……電費 155 元，同樣里程的油錢要 497。</p></div>
+      <div><h3>Gemini TTS · giọng Kore</h3><audio controls preload="none" src="voices/l3_gemini_Kore.wav"></audio><p class="heard">Whisper nghe: ……電費 155 元，同樣里程的油錢要 497 元<b>耶</b>。（自己多加了一個字）</p></div>
+    </div></section><section class="card"><h2>Câu 4</h2><p class="line">老實說，現在不建議。你每天開 80 公里，又不能在家或公司充電，每週要快充兩三次，會很花時間。</p><div class="grid">
+      <div><h3>BreezyVoice (đang dùng)</h3><audio controls preload="none" src="voices/l4_breezy.wav"></audio><p class="heard">Whisper nghe: <b>早時說</b>，現在不建議。<b>米</b>每天開 80 公里……（「老實說」「你」念得不清楚）</p></div>
+      <div><h3>Gemini TTS · giọng Aoede</h3><audio controls preload="none" src="voices/l4_gemini_Aoede.wav"></audio><p class="heard">Whisper nghe: 老實說，現在不建議。你每天開 80 公里，又不能在家或公司充電……</p></div>
+      <div><h3>Gemini TTS · giọng Kore</h3><audio controls preload="none" src="voices/l4_gemini_Kore.wav"></audio><p class="heard">Whisper nghe: 老實說，現在不建議。你每天開 80 公里，又不能在家或公司充電……</p></div>
+    </div></section></main></body></html>
